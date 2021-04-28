@@ -134,8 +134,8 @@ namespace Invaders.View
 
         private void AboutButton_OnClick(object sender, RoutedEventArgs e)
         {
-            BitmapImage appBi = new BitmapImage(new System.Uri("pack://application:,,,/Assets/logo-large.png"));
-            BitmapImage cBi = new BitmapImage(new System.Uri("pack://application:,,,/Assets/tolache-logo.png"));
+            BitmapImage appBi = new BitmapImage(new System.Uri("pack://application:,,,/Assets/Images/logo-large.png"));
+            BitmapImage cBi = new BitmapImage(new System.Uri("pack://application:,,,/Assets/Images/tolache-logo.png"));
 
             AboutControlView about = new AboutControlView();
             AboutControlViewModel vm = (AboutControlViewModel)about.FindResource("ViewModel");

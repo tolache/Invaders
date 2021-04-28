@@ -67,7 +67,7 @@ namespace Invaders.View
 
         private BitmapImage CreateImageFromAssets(string imageName)
         {
-            Uri uri = new Uri("pack://application:,,,/Assets/" + imageName, UriKind.Absolute);
+            Uri uri = new Uri("pack://application:,,,/Assets/Images/" + imageName, UriKind.Absolute);
             return new BitmapImage(uri);
         }
     }

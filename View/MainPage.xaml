@@ -32,7 +32,7 @@
             <Setter Property="Focusable" Value="False" />
         </Style>
         <Style TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="/Fonts/#joystix monospace" />
+            <Setter Property="FontFamily" Value="pack://application:,,,/Invaders;component/Assets/Fonts/joystix_monospace.ttf#Joystix Monospace" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="HorizontalAlignment" Value="Center" />
         </Style>
@@ -87,7 +87,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="../Assets/player.png"
+                            <Image Source="../Assets/Images/player.png"
                                    Stretch="Fill"
                                    Width="20"
                                    Height="12" />
