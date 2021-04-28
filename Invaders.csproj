@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\player-icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Bug1.png" />
+    <None Remove="Assets\Bug2.png" />
+    <None Remove="Assets\Bug3.png" />
+    <None Remove="Assets\Bug4.png" />
+    <None Remove="Assets\logo-large.png" />
+    <None Remove="Assets\logo-small.png" />
+    <None Remove="Assets\player.png" />
+    <None Remove="Assets\Satellite1.png" />
+    <None Remove="Assets\Satellite2.png" />
+    <None Remove="Assets\Satellite3.png" />
+    <None Remove="Assets\Satellite4.png" />
+    <None Remove="Assets\Saucer1.png" />
+    <None Remove="Assets\Saucer2.png" />
+    <None Remove="Assets\Saucer3.png" />
+    <None Remove="Assets\Saucer4.png" />
+    <None Remove="Assets\Spaceship1.png" />
+    <None Remove="Assets\Spaceship2.png" />
+    <None Remove="Assets\Spaceship3.png" />
+    <None Remove="Assets\Spaceship4.png" />
+    <None Remove="Assets\Star1.png" />
+    <None Remove="Assets\Star2.png" />
+    <None Remove="Assets\Star3.png" />
+    <None Remove="Assets\Star4.png" />
+    <None Remove="Assets\tolache-logo.png" />
+    <None Remove="Assets\watchit1.png" />
+    <None Remove="Assets\watchit2.png" />
+    <None Remove="Assets\watchit3.png" />
+    <None Remove="Assets\watchit4.png" />
+    <Resource Include="Assets\Bug1.png" />
+    <Resource Include="Assets\Bug2.png" />
+    <Resource Include="Assets\Bug3.png" />
+    <Resource Include="Assets\Bug4.png" />
+    <Resource Include="Assets\logo-large.png" />
+    <Resource Include="Assets\logo-small.png" />
+    <Resource Include="Assets\player.png" />
+    <Resource Include="Assets\Satellite1.png" />
+    <Resource Include="Assets\Satellite2.png" />
+    <Resource Include="Assets\Satellite3.png" />
+    <Resource Include="Assets\Satellite4.png" />
+    <Resource Include="Assets\Saucer1.png" />
+    <Resource Include="Assets\Saucer2.png" />
+    <Resource Include="Assets\Saucer3.png" />
+    <Resource Include="Assets\Saucer4.png" />
+    <Resource Include="Assets\Spaceship1.png" />
+    <Resource Include="Assets\Spaceship2.png" />
+    <Resource Include="Assets\Spaceship3.png" />
+    <Resource Include="Assets\Spaceship4.png" />
+    <Resource Include="Assets\Star1.png" />
+    <Resource Include="Assets\Star2.png" />
+    <Resource Include="Assets\Star3.png" />
+    <Resource Include="Assets\Star4.png" />
+    <Resource Include="Assets\tolache-logo.png" />
+    <Resource Include="Assets\watchit1.png" />
+    <Resource Include="Assets\watchit2.png" />
+    <Resource Include="Assets\watchit3.png" />
+    <Resource Include="Assets\watchit4.png" />
+    <None Remove="Assets\ARCADECLASSIC.TTF" />
+    <None Remove="Fonts\joystix monospace.ttf" />
+    <Resource Include="Fonts\joystix monospace.ttf" />
+  </ItemGroup>
+  
+</Project>

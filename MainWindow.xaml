@@ -1,0 +1,14 @@
+﻿<Window x:Class="Invaders.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Invaders"
+        mc:Ignorable="d"
+        Title="Invaders" 
+        MinWidth="250" 
+        MinHeight="255"
+        Background="#343d52">
+        
+        <Frame Source="View/MainPage.xaml"/>
+</Window>

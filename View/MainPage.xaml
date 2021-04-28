@@ -1,0 +1,129 @@
+﻿<Page x:Class="Invaders.View.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:Invaders.View"
+      xmlns:viewModel="clr-namespace:Invaders.ViewModel"
+      mc:Ignorable="d"
+      Title="MainPage"
+      MinWidth="100"
+      MinHeight="75"
+      d:Width="800"
+      d:Height="600"
+      HorizontalAlignment="Stretch"
+      VerticalAlignment="Stretch"
+      IsManipulationEnabled="True"
+      ManipulationStarted="MainPage_OnManipulationStarted"
+      ManipulationDelta="MainPage_OnManipulationDelta"
+      ManipulationCompleted="MainPage_OnManipulationCompleted"
+      Loaded="MainPage_OnLoaded"
+      Unloaded="MainPage_OnUnloaded"
+      TouchLeave="MainPage_OnTouchLeave">
+    <Page.Resources>
+        <viewModel:InvadersViewModel x:Key="InvadersViewModel" />
+        <viewModel:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <viewModel:BoolToGameOverTextConverter x:Key="BoolToGameOverTextConverter"/>
+        <Style TargetType="Button">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Background" Value="#343d52" />
+            <Setter Property="Margin" Value="0,0,5,0" />
+            <Setter Property="Focusable" Value="False" />
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="/Fonts/#joystix monospace" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
+    </Page.Resources>
+
+    <Grid x:Name="MainGrid"
+          Margin="10"
+          DataContext="{StaticResource InvadersViewModel}"
+          Background="#343d52"
+          SizeChanged="MainGrid_OnSizeChanged">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition x:Name="PlayAreaRow" Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Orientation="Horizontal">
+            <Button Click="StartButton_OnClick">
+                <TextBlock Text="START" />
+            </Button>
+            <Button Click="AboutButton_OnClick">
+                <TextBlock Text="ABOUT" />
+            </Button>
+        </StackPanel>
+
+        <StackPanel x:Name="StatsPanel"
+                    Grid.Row="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    IsHitTestVisible="False">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <TextBlock Text="{Binding Wave}"
+                           Margin="5,0" />
+                <TextBlock Text="{Binding Score}"
+                           Margin="5,0" />
+            </StackPanel>
+            <ListView HorizontalAlignment="Right"
+                      BorderThickness="0"
+                      DataContext="{StaticResource InvadersViewModel}"
+                      ItemsSource="{Binding Lives}"
+                      Background="Transparent"
+                      Height="20"
+                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Assets/player.png"
+                                   Stretch="Fill"
+                                   Width="20"
+                                   Height="12" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+
+        <TextBlock x:Name="GameOverText"
+                   Grid.Row="1"
+                   Text="{Binding Victory, Converter={StaticResource BoolToGameOverTextConverter}}"
+                   FontSize="20"
+                   Visibility="{Binding GameOver, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <TextBlock x:Name="PausedText"
+                   Grid.Row="1"
+                   Text="PAUSED"
+                   FontSize="20"
+                   Visibility="{Binding Paused, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+        <Border x:Name="PlayAreaBorder"
+                Grid.Row="1"
+                Background="Black"
+                BorderBrush="Blue" BorderThickness="2" CornerRadius="10"
+                VerticalAlignment="Top"
+                SizeChanged="PlayAreaBorder_OnSizeChanged"
+                Loaded="PlayAreaBorder_OnLoaded">
+            <ItemsControl DataContext="{StaticResource InvadersViewModel}"
+                          ItemsSource="{Binding Sprites}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Border>
+
+    </Grid>
+</Page>

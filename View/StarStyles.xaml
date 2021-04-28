@@ -1,0 +1,41 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:view="clr-namespace:Invaders.View">
+    <Style x:Key="BigStar" TargetType="view:StarControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="view:StarControl">
+                    <Polygon Points="5,0 6,4 10,5 6,6 5,10 4,6 0,5 4,4" 
+                             Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=view:StarControl}}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="RectangleStar" TargetType="view:StarControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="view:StarControl">
+                    <Rectangle Height="4"
+                               Width="4" 
+                               Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=view:StarControl}}">
+                        <Rectangle.RenderTransform>
+                            <RotateTransform Angle="45"/>
+                        </Rectangle.RenderTransform>
+                    </Rectangle>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="EllipseStar" TargetType="view:StarControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="view:StarControl">
+                    <Ellipse Height="3"
+                               Width="3" 
+                               Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=view:StarControl}}">
+                    </Ellipse>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
