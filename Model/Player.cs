@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace Invaders.Model
 {
@@ -23,7 +24,7 @@ namespace Invaders.Model
                     Location = new Point(oldLocation.X + Speed, oldLocation.Y);
                     break;
                 default:
-                    throw new InvalidDirectionException(direction, GetType());
+                    throw new NotImplementedException($"Moving {GetType()} {direction} is not implemented.");
             }
         }
     }

@@ -507,7 +507,7 @@ namespace Invaders.Model
                     case (3, 6):
                         return (InvaderType) 3;
                     default:
-                        throw new InvalidInvaderTypeException(wave, row);
+                        throw new NotImplementedException($"Failed to determine invader type for wave {wave} and row {row}.");
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace Invaders.Model
 {
@@ -29,7 +30,7 @@ namespace Invaders.Model
                     Score = 50;
                     break;
                 default:
-                    throw new InvalidInvaderTypeException($"Invader type '{type}' is unknown.");
+                    throw new NotImplementedException($"Invader type '{type}' is not implemented.");
             }
         }
 
@@ -48,7 +49,7 @@ namespace Invaders.Model
                     Location = new Point(oldLocation.X, oldLocation.Y + Size.Height);
                     break;
                 default:
-                    throw new InvalidDirectionException(direction, GetType());
+                    throw new NotImplementedException($"Moving {GetType()} {direction} is not implemented.");
             }
         }
     }
