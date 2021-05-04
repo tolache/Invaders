@@ -15,6 +15,7 @@ namespace Invaders.ViewModel
 {
     public class InvadersViewModel : INotifyPropertyChanged
     {
+        private AudioPlaybackViewModel _audioPlaybackViewModel;
         private readonly ObservableCollection<FrameworkElement> _sprites = new();
         public INotifyCollectionChanged Sprites => _sprites;
         public bool GameOver => _model.GameOver;
@@ -73,6 +74,8 @@ namespace Invaders.ViewModel
         public InvadersViewModel()
         {
             Scale = 1;
+            
+            _audioPlaybackViewModel = new AudioPlaybackViewModel();
 
             _model.ShipChanged += OnModelShipChanged;
             _model.ShotMoved += OnModelShotMoved;
@@ -254,6 +257,7 @@ namespace Invaders.ViewModel
                     FrameworkElement shotControl = InvadersHelper.ShotFactory(e.Shot.Location.X, e.Shot.Location.Y, Scale);
                     _shots.Add(e.Shot, shotControl);
                     _sprites.Add(shotControl);
+                    _audioPlaybackViewModel.PlayerLaserShootCommand.Execute(null);
                 }
                 else
                 {
