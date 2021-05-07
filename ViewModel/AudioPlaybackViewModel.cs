@@ -9,16 +9,19 @@ namespace Invaders.ViewModel
     {
         public ICommand PlayerLaserShootCommand { get; }
         public ICommand LaserHitCommand { get; }
+        public ICommand PlayerHitCommand { get; }
         
         private AudioPlaybackEngine _engine;
         private readonly CachedSound _playerLaserShot = new(@"Assets\Sounds\playerLaserShot.wav");
         private readonly CachedSound _laserHit = new(@"Assets\Sounds\laserHit.wav");
+        private readonly CachedSound _playerHit = new(@"Assets\Sounds\playerHit.wav");
 
         public AudioPlaybackViewModel()
         {
             _engine = new AudioPlaybackEngine();
             PlayerLaserShootCommand = new DelegateCommand(() => _engine.PlaySound(_playerLaserShot));
             LaserHitCommand = new DelegateCommand(() => _engine.PlaySound(_laserHit));
+            PlayerHitCommand = new DelegateCommand(() => _engine.PlaySound(_playerHit));
         }
         
         public event PropertyChangedEventHandler? PropertyChanged;

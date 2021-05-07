@@ -242,6 +242,7 @@ namespace Invaders.ViewModel
                         AnimatedImage playerAnimatedImage = _playerControl as AnimatedImage;
                         playerAnimatedImage?.StartFlashing();
                         _playerFlashing = true;
+                        _audioPlaybackViewModel.PlayerHitCommand.Execute(null);
                     }
                     InvadersHelper.SetCanvasLocation(_playerControl, player.Location.X, player.Location.Y, Scale);
                     InvadersHelper.ResizeElement(_playerControl, player.Size.Width, player.Size.Height, Scale);
