@@ -26,7 +26,8 @@ namespace Invaders.Model
         public bool GamePaused { get; private set; }
 
         private DateTime? _playerDied;
-        public bool PlayerDying => _playerDied.HasValue;
+        private bool PlayerDying => _playerDied.HasValue;
+        private bool PlayerFrozen => PlayerDying && DateTime.Now - _playerDied < _playerFreezeDuration;
 
         private Player _player;
 
@@ -103,7 +104,7 @@ namespace Invaders.Model
 
         public void FireShot()
         {
-            if (GameOver || GamePaused || PlayerDying && !PlayerRecovering()) return;
+            if (GameOver || GamePaused || PlayerFrozen) return;
             if (_playerShots.Count >= MaximumPlayerShots) return;
 
             int shotX = _player.Location.X + _player.Size.Width / 2;
@@ -112,11 +113,16 @@ namespace Invaders.Model
             Shot shot = new Shot(shotLocation, Direction.Up);
             _playerShots.Add(shot);
             OnShotMoved(shot, false);
+
+            bool PlayerDisabled()
+            {
+                return true;
+            }
         }
 
         public void MovePlayer(Direction direction)
         {
-            if (PlayerDying && !PlayerRecovering()) return;
+            if (PlayerFrozen) return;
             if (PlayerReachedBoundary()) return;
             
             _player.Move(direction);
@@ -133,16 +139,6 @@ namespace Invaders.Model
                         return false;
                 }
             }
-        }
-
-        private bool PlayerRecovering()
-        {
-            if (PlayerDying && DateTime.Now - _playerDied > _playerFreezeDuration)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private void CreateStar()
@@ -318,7 +314,7 @@ namespace Invaders.Model
 
             void ReturnFire()
             {
-                if (!CanShoot())
+                if (!InvadersCanShoot())
                 {
                     return;
                 }
@@ -340,7 +336,7 @@ namespace Invaders.Model
                     return shooter;
                 }
 
-                bool CanShoot()
+                bool InvadersCanShoot()
                 {
                     if (_invaderShots.Count >= Wave + 1 || _random.Next(30) < 30 - Wave)
                     {
