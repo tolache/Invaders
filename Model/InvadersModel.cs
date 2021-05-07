@@ -113,11 +113,6 @@ namespace Invaders.Model
             Shot shot = new Shot(shotLocation, Direction.Up);
             _playerShots.Add(shot);
             OnShotMoved(shot, false);
-
-            bool PlayerDisabled()
-            {
-                return true;
-            }
         }
 
         public void MovePlayer(Direction direction)
