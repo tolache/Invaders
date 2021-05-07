@@ -233,6 +233,7 @@ namespace Invaders.ViewModel
                     invaderAnimatedImage?.InvaderShot();
                     _shotInvaders.Add(_invaders[invader], DateTime.Now);
                     _invaders.Remove(invader);
+                    _audioPlaybackViewModel.LaserHitCommand.Execute(null);
                 }
                 else if (e.Ship is Player player)
                 {
@@ -257,7 +258,10 @@ namespace Invaders.ViewModel
                     FrameworkElement shotControl = InvadersHelper.ShotFactory(e.Shot.Location.X, e.Shot.Location.Y, Scale);
                     _shots.Add(e.Shot, shotControl);
                     _sprites.Add(shotControl);
-                    _audioPlaybackViewModel.PlayerLaserShootCommand.Execute(null);
+                    if (e.Shot.Direction == Direction.Up)
+                    {
+                        _audioPlaybackViewModel.PlayerLaserShootCommand.Execute(null);
+                    }
                 }
                 else
                 {
