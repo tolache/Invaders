@@ -10,7 +10,6 @@ namespace Invaders.Model
     public class InvadersModel
     {
         private static readonly Size PlayAreaSize = new(400, 300);
-        private const int MaximumPlayerShots = 3;
         private const int InitialStarCount = 50;
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
@@ -24,7 +23,7 @@ namespace Invaders.Model
         public bool GameOver { get; private set; }
         public bool Victory { get; private set; }
         public bool GamePaused { get; private set; }
-
+        
         private DateTime? _playerDied;
         private bool PlayerDying => _playerDied.HasValue;
         private bool PlayerFrozen => PlayerDying && DateTime.Now - _playerDied < _playerFreezeDuration;
@@ -104,15 +103,16 @@ namespace Invaders.Model
 
         public void FireShot()
         {
-            if (GameOver || GamePaused || PlayerFrozen) return;
-            if (_playerShots.Count >= MaximumPlayerShots) return;
-
+            if (GameOver || GamePaused || PlayerFrozen || !_player.HasBatteryCharge) return;
+            
             int shotX = _player.Location.X + _player.Size.Width / 2;
             int shotY = _player.Location.Y - Shot.ShotSize.Height - 1;
             Point shotLocation = new(shotX, shotY);
             Shot shot = new Shot(shotLocation, Direction.Up);
             _playerShots.Add(shot);
             OnShotMoved(shot, false);
+            
+            _player.DrainBattery();
         }
 
         public void MovePlayer(Direction direction)
@@ -404,6 +404,8 @@ namespace Invaders.Model
 
         public void UpdateAllShipsAndStars()
         {
+            _player?.ChargeBattery();
+
             OnShipChanged(_player, PlayerDying);
             
             foreach (Invader invader in _invaders)
