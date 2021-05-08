@@ -15,19 +15,19 @@ namespace Invaders.ViewModel
 {
     public class InvadersViewModel : INotifyPropertyChanged
     {
-        private AudioPlaybackViewModel _audioPlaybackViewModel;
-        private readonly ObservableCollection<FrameworkElement> _sprites = new();
         public INotifyCollectionChanged Sprites => _sprites;
+        public ObservableCollection<object> Lives => _lives;
         public bool GameOver => _model.GameOver;
         public bool Victory => _model.Victory;
-        private readonly ObservableCollection<object> _lives = new();
-
-        public ObservableCollection<object> Lives => _lives;
         public bool Paused { get; set; }
-        private bool _lastPaused = true;
-        public static double Scale { get; private set; }
         public int Score { get; private set; }
         public int Wave { get; private set; }
+
+        private static double Scale { get; set; }
+        private readonly AudioPlaybackViewModel _audioPlaybackViewModel;
+        private readonly ObservableCollection<FrameworkElement> _sprites = new();
+        private readonly ObservableCollection<object> _lives = new();
+        private bool _lastPaused = true;
 
         public Size PlayAreaSize
         {
