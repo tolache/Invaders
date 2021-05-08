@@ -9,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Invaders.Model;
 using Invaders.View;
-using Point = System.Drawing.Point;
 
 namespace Invaders.ViewModel
 {
@@ -65,7 +64,7 @@ namespace Invaders.ViewModel
         private readonly Dictionary<FrameworkElement, DateTime> _shotInvaders = new();
 
         private readonly Dictionary<Shot, FrameworkElement> _shots = new();
-        private readonly Dictionary<Point, FrameworkElement> _stars = new();
+        private readonly Dictionary<System.Drawing.Point, FrameworkElement> _stars = new();
         private readonly Dictionary<FrameworkElement, DateTime> _fadedStars = new();
         private readonly List<FrameworkElement> _scanLines = new();
         private DateTime? _leftAction = null;
@@ -194,13 +193,15 @@ namespace Invaders.ViewModel
                 {
                     if (!_invaders.ContainsKey(invader))
                     {
-                        AnimatedImage newInvaderControl = InvadersHelper.InvaderControlFactory(invader.Type, invader.Location.X, invader.Location.Y, Scale);
+                        Point invaderLocation = new(invader.Location.X, invader.Location.Y);
+                        AnimatedImage newInvaderControl = InvadersHelper.InvaderControlFactory(invader.Type, invaderLocation, Scale);
                         _invaders.Add(invader, newInvaderControl);
                         _sprites.Add(newInvaderControl);
                     }
                     else
                     {
-                        InvadersHelper.SetCanvasLocation(_invaders[invader], invader.Location.X, invader.Location.Y, Scale);
+                        Point invaderLocation = new(invader.Location.X, invader.Location.Y);
+                        InvadersHelper.SetCanvasLocation(_invaders[invader], invaderLocation, Scale);
                         InvadersHelper.ResizeElement(_invaders[invader], invader.Size.Width, invader.Size.Height, Scale);
                     }
                 }
@@ -208,12 +209,14 @@ namespace Invaders.ViewModel
                 {
                     if (_playerControl == null)
                     {
-                        _playerControl = InvadersHelper.PlayerControlFactory(player.Location.X, player.Location.Y, Scale);
+                        Point playerLocation = new(player.Location.X, player.Location.Y);
+                        _playerControl = InvadersHelper.PlayerControlFactory(player.CurrentBatteryCharge, playerLocation, Scale);
                         _sprites.Add(_playerControl);
                     }
                     else
                     {
-                        InvadersHelper.SetCanvasLocation(_playerControl, player.Location.X, player.Location.Y, Scale);
+                        Point playerLocation = new(player.Location.X, player.Location.Y);
+                        InvadersHelper.SetCanvasLocation(_playerControl, playerLocation, Scale);
                         InvadersHelper.ResizeElement(_playerControl, player.Size.Width, player.Size.Height, Scale);
                     }
                     if (_playerFlashing)
@@ -230,7 +233,7 @@ namespace Invaders.ViewModel
                 {
                     if (!_invaders.ContainsKey(invader)) return;
                     AnimatedImage invaderAnimatedImage = _invaders[invader] as AnimatedImage;
-                    invaderAnimatedImage?.InvaderShot();
+                    invaderAnimatedImage?.FadeOut();
                     _shotInvaders.Add(_invaders[invader], DateTime.Now);
                     _invaders.Remove(invader);
                     _audioPlaybackViewModel.LaserHitCommand.Execute(null);
@@ -244,7 +247,8 @@ namespace Invaders.ViewModel
                         _playerFlashing = true;
                         _audioPlaybackViewModel.PlayerHitCommand.Execute(null);
                     }
-                    InvadersHelper.SetCanvasLocation(_playerControl, player.Location.X, player.Location.Y, Scale);
+                    Point playerLocation = new(player.Location.X, player.Location.Y);
+                    InvadersHelper.SetCanvasLocation(_playerControl, playerLocation, Scale);
                     InvadersHelper.ResizeElement(_playerControl, player.Size.Width, player.Size.Height, Scale);
                 }
             }
@@ -256,7 +260,8 @@ namespace Invaders.ViewModel
             {
                 if (!_shots.Keys.Contains(e.Shot))
                 {
-                    FrameworkElement shotControl = InvadersHelper.ShotFactory(e.Shot.Location.X, e.Shot.Location.Y, Scale);
+                    Point shotLocation = new(e.Shot.Location.X, e.Shot.Location.Y);
+                    FrameworkElement shotControl = InvadersHelper.ShotFactory(shotLocation, Scale);
                     _shots.Add(e.Shot, shotControl);
                     _sprites.Add(shotControl);
                     if (e.Shot.Direction == Direction.Up)
@@ -267,7 +272,8 @@ namespace Invaders.ViewModel
                 else
                 {
                     FrameworkElement shotControl = _shots[e.Shot];
-                    InvadersHelper.SetCanvasLocation(shotControl, e.Shot.Location.X, e.Shot.Location.Y, Scale);
+                    Point shotLocation = new(e.Shot.Location.X, e.Shot.Location.Y);
+                    InvadersHelper.SetCanvasLocation(shotControl, shotLocation, Scale);
                     InvadersHelper.ResizeElement(shotControl, Shot.ShotSize.Width, Shot.ShotSize.Height, Scale);
                 }
             }
@@ -295,7 +301,8 @@ namespace Invaders.ViewModel
             {
                 if (!_stars.ContainsKey(e.Location))
                 {
-                    StarControl newStarControl = InvadersHelper.StarControlFactory(e.Location.X, e.Location.Y, Scale);
+                    Point starLocation = new(e.Location.X, e.Location.Y);
+                    StarControl newStarControl = InvadersHelper.StarControlFactory(starLocation, Scale);
                     _stars.Add(e.Location, newStarControl);
                     _sprites.Add(newStarControl);
                     newStarControl.FadeIn();
@@ -304,7 +311,8 @@ namespace Invaders.ViewModel
                 {
                     FrameworkElement starControl = _stars[e.Location];
                     InvadersHelper.ScaleStar(starControl as StarControl, Scale);
-                    InvadersHelper.SetCanvasLocation(starControl, e.Location.X, e.Location.Y, Scale);
+                    Point starLocation = new(e.Location.X, e.Location.Y);
+                    InvadersHelper.SetCanvasLocation(starControl, starLocation, Scale);
                 }
             }
         }

@@ -12,7 +12,7 @@ namespace Invaders.View
     {
         private static readonly Random _random = new Random();
 
-        public static AnimatedImage InvaderControlFactory(InvaderType type, double x, double y, double scale)
+        public static AnimatedImage InvaderControlFactory(InvaderType type, Point location, double scale)
         {
             List<string> imageNames = new List<string>
             {
@@ -23,23 +23,42 @@ namespace Invaders.View
             };
             AnimatedImage invader = new AnimatedImage(imageNames, TimeSpan.FromMilliseconds(100));
             ResizeElement(invader, Invader.InvaderSize.Width, Invader.InvaderSize.Height, scale);
-            SetCanvasLocation(invader, x, y, scale);
+            SetCanvasLocation(invader, location, scale);
             return invader;
         }
         
-        public static AnimatedImage PlayerControlFactory(double x, double y, double scale)
+        public static AnimatedImage PlayerControlFactory(int batteryCharge, Point location, double scale)
         {
+            string imageName;
+            switch (batteryCharge)
+            {
+                case 0:
+                    imageName = "playerWithCharge0.png";
+                    break;
+                case 1:
+                    imageName = "playerWithCharge1.png";
+                    break;
+                case 2:
+                    imageName = "playerWithCharge2.png";
+                    break;
+                case 3:
+                    imageName = "playerWithCharge3.png";
+                    break;
+                default:
+                    imageName = "playerWithCharge0.png";
+                    break;
+            }
             List<string> imageNames = new List<string>
             {
-                "player.png",
+                imageName,
             };
             AnimatedImage player = new AnimatedImage(imageNames, TimeSpan.FromMilliseconds(1000));
             ResizeElement(player, Player.PlayerSize.Width, Player.PlayerSize.Height, scale);
-            SetCanvasLocation(player, x, y, scale);
+            SetCanvasLocation(player, location, scale);
             return player;
         }
         
-        public static FrameworkElement ShotFactory(double x, double y, double scale)
+        public static FrameworkElement ShotFactory(Point location, double scale)
         {
             Rectangle shot = new Rectangle
             {
@@ -48,7 +67,7 @@ namespace Invaders.View
                 Height = Shot.ShotSize.Height,
             };
             ResizeElement(shot, shot.Width, shot.Height, scale);
-            SetCanvasLocation(shot, x, y, scale);
+            SetCanvasLocation(shot, location, scale);
             return shot;
         }
 
@@ -61,12 +80,12 @@ namespace Invaders.View
                 Height = 2 * scale, 
                 Opacity = .1,
             };
-            SetCanvasLocation(scanLine,1.25, y, scale);
+            SetCanvasLocation(scanLine,new Point(1.25, y), scale);
             BringToFront(scanLine);
             return scanLine;
         }
 
-        public static StarControl StarControlFactory(double x, double y, double scale)
+        public static StarControl StarControlFactory(Point location, double scale)
         {
             StarControl star = new();
             int randomInt = _random.Next(3);
@@ -87,7 +106,7 @@ namespace Invaders.View
             }
 
             star.Foreground = GetRandomStarColor();
-            SetCanvasLocation(star, x, y, scale);
+            SetCanvasLocation(star, location, scale);
             ScaleStar(star, scale);
             SendToBack(star);
             return star;
@@ -124,10 +143,10 @@ namespace Invaders.View
             }
         }
 
-        public static void SetCanvasLocation(UIElement control, double x, double y, double scale)
+        public static void SetCanvasLocation(UIElement control, Point location, double scale)
         {
-            Canvas.SetLeft(control, x * scale);
-            Canvas.SetTop(control, y * scale);
+            Canvas.SetLeft(control, location.X * scale);
+            Canvas.SetTop(control, location.Y * scale);
         }
 
         public static void ResizeElement(FrameworkElement control, double width, double height, double scale)

@@ -22,7 +22,7 @@ namespace Invaders.View
             StartAnimation(imageNames, interval);
         }
 
-        public void InvaderShot()
+        public void FadeOut()
         {
             Storyboard invaderShotStoryboard = new Storyboard();
             DoubleAnimation animation = new DoubleAnimation(0, TimeSpan.FromMilliseconds(500));
