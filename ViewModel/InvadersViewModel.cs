@@ -59,7 +59,7 @@ namespace Invaders.ViewModel
         private readonly InvadersModel _model = new();
         private readonly DispatcherTimer _timer = new();
         private FrameworkElement _playerControl = null;
-        private bool _playerFlashing = false;
+        private bool _playerHitAnimationInProgress = false;
         private readonly Dictionary<Invader, FrameworkElement> _invaders = new();
 
         private readonly Dictionary<FrameworkElement, DateTime> _shotInvaders = new();
@@ -83,7 +83,7 @@ namespace Invaders.ViewModel
 
             _timer.Interval = TimeSpan.FromMilliseconds(31);
             _timer.Tick += OnTimerTick;
-
+            
             EndGame();
         }
 
@@ -228,9 +228,9 @@ namespace Invaders.ViewModel
                         InvadersHelper.SetCanvasLocation(_playerControl, playerLocation, Scale);
                         InvadersHelper.ResizeElement(_playerControl, player.Size.Width, player.Size.Height, Scale);
                     }
-                    if (_playerFlashing)
+                    if (_playerHitAnimationInProgress)
                     {
-                        _playerFlashing = false;
+                        _playerHitAnimationInProgress = false;
                         AnimatedImage playerAnimatedImage = _playerControl as AnimatedImage;
                         playerAnimatedImage?.StopFlashing();
                     }
@@ -249,11 +249,17 @@ namespace Invaders.ViewModel
                 }
                 else if (e.Ship is Player player)
                 {
-                    if (!_playerFlashing)
+                    if (Lives.Count == 0 && !_playerHitAnimationInProgress)
+                    {
+                        AnimatedImage playerAnimatedImage = _playerControl as AnimatedImage;
+                        playerAnimatedImage?.FadeOut();
+                        _audioPlaybackViewModel.PlayerDeadCommand.Execute(null);
+                    }
+                    else if (!_playerHitAnimationInProgress)
                     {
                         AnimatedImage playerAnimatedImage = _playerControl as AnimatedImage;
                         playerAnimatedImage?.StartFlashing();
-                        _playerFlashing = true;
+                        _playerHitAnimationInProgress = true;
                         _audioPlaybackViewModel.PlayerHitCommand.Execute(null);
                     }
                     Point playerLocation = new(player.Location.X, player.Location.Y);
@@ -398,15 +404,13 @@ namespace Invaders.ViewModel
                 {
                     if (_model.Lives < 0)
                     {
-                        _model.EndGame();
+                        return;
                     }
-                    else
+
+                    int livesToRemove = Lives.Count - _model.Lives;
+                    for (int i = 1; i <= livesToRemove; i++)
                     {
-                        int livesToRemove = Lives.Count - _model.Lives;
-                        for (int i = 1; i <= livesToRemove; i++)
-                        {
-                            _lives.RemoveAt(Lives.Count - 1);
-                        }
+                        _lives.RemoveAt(Lives.Count - 1);
                     }
                 }
                 else if (Lives.Count < _model.Lives)

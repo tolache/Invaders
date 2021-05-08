@@ -81,6 +81,7 @@
     <None Remove="Assets\Sounds\laserHit.wav" />
     <None Remove="Assets\Sounds\playerHit.wav" />
     <None Remove="Assets\Sounds\playerLaserShot.wav" />
+    <None Remove="Assets\Sounds\playerDead.wav" />
     <Content Include="Assets\Sounds\laserHit.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -88,6 +89,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Sounds\playerLaserShot.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Sounds\playerDead.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

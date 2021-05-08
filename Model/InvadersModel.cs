@@ -174,10 +174,10 @@ namespace Invaders.Model
             MoveInvaders();
             MoveShots();
             ReturnFire();
-            CheckForInvaderCollisions();
+            CheckInvaderIsHit();
             if (!PlayerDying)
             {
-                CheckForPlayerCollisions();
+                CheckPlayerIsHit();
             }
             UpdateAllShipsAndStars();
             CheckIfInvadersReachedBottom();
@@ -349,7 +349,7 @@ namespace Invaders.Model
                 }
             }
 
-            void CheckForInvaderCollisions()
+            void CheckInvaderIsHit()
             {
                 List<Shot> playerShotsCopy = new List<Shot>(_playerShots);
                 List<Invader> invadersCopy = new List<Invader>(_invaders);
@@ -367,7 +367,7 @@ namespace Invaders.Model
                 }
             }
 
-            void CheckForPlayerCollisions()
+            void CheckPlayerIsHit()
             {
                 List<Shot> invaderShotsCopy = new List<Shot>(_invaderShots);
                 foreach (Shot shot in invaderShotsCopy.Where(shot => RectsOverlap(shot.Area, _player.Area)))
@@ -377,6 +377,10 @@ namespace Invaders.Model
                     _playerDied = DateTime.Now;
                     Lives--;
                     OnShipChanged(_player, PlayerDying);
+                    if (Lives < 0)
+                    {
+                        EndGame();
+                    }
                 }
             }
 

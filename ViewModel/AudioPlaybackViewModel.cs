@@ -10,11 +10,13 @@ namespace Invaders.ViewModel
         public ICommand PlayerLaserShootCommand { get; }
         public ICommand LaserHitCommand { get; }
         public ICommand PlayerHitCommand { get; }
+        public ICommand PlayerDeadCommand { get; }
         
         private AudioPlaybackEngine _engine;
         private readonly CachedSound _playerLaserShot = new(@"Assets\Sounds\playerLaserShot.wav");
         private readonly CachedSound _laserHit = new(@"Assets\Sounds\laserHit.wav");
         private readonly CachedSound _playerHit = new(@"Assets\Sounds\playerHit.wav");
+        private readonly CachedSound _playerDead = new(@"Assets\Sounds\playerDead.wav");
 
         public AudioPlaybackViewModel()
         {
@@ -22,6 +24,7 @@ namespace Invaders.ViewModel
             PlayerLaserShootCommand = new DelegateCommand(() => _engine.PlaySound(_playerLaserShot));
             LaserHitCommand = new DelegateCommand(() => _engine.PlaySound(_laserHit));
             PlayerHitCommand = new DelegateCommand(() => _engine.PlaySound(_playerHit));
+            PlayerDeadCommand = new DelegateCommand(() => _engine.PlaySound(_playerDead));
         }
         
         public event PropertyChangedEventHandler? PropertyChanged;
