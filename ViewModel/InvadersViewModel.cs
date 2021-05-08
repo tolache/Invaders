@@ -27,6 +27,7 @@ namespace Invaders.ViewModel
         private readonly ObservableCollection<FrameworkElement> _sprites = new();
         private readonly ObservableCollection<object> _lives = new();
         private bool _lastPaused = true;
+        private int _lastPlayerBatteryCharge;
 
         public Size PlayAreaSize
         {
@@ -209,6 +210,7 @@ namespace Invaders.ViewModel
                 {
                     if (_playerControl == null)
                     {
+                        _lastPlayerBatteryCharge = player.CurrentBatteryCharge;
                         Point playerLocation = new(player.Location.X, player.Location.Y);
                         _playerControl = InvadersHelper.PlayerControlFactory(player.CurrentBatteryCharge, playerLocation, Scale);
                         _sprites.Add(_playerControl);
@@ -216,6 +218,13 @@ namespace Invaders.ViewModel
                     else
                     {
                         Point playerLocation = new(player.Location.X, player.Location.Y);
+                        if (player.CurrentBatteryCharge != _lastPlayerBatteryCharge)
+                        {
+                            _sprites.Remove(_playerControl);
+                            _lastPlayerBatteryCharge = player.CurrentBatteryCharge;
+                            _playerControl = InvadersHelper.PlayerControlFactory(player.CurrentBatteryCharge, playerLocation, Scale);
+                            _sprites.Add(_playerControl);
+                        }
                         InvadersHelper.SetCanvasLocation(_playerControl, playerLocation, Scale);
                         InvadersHelper.ResizeElement(_playerControl, player.Size.Width, player.Size.Height, Scale);
                     }

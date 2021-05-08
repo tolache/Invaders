@@ -14,7 +14,6 @@
     <None Remove="Assets\Images\Bug4.png" />
     <None Remove="Assets\Images\logo-large.png" />
     <None Remove="Assets\Images\logo-small.png" />
-    <None Remove="Assets\Images\player.png" />
     <None Remove="Assets\Images\Satellite1.png" />
     <None Remove="Assets\Images\Satellite2.png" />
     <None Remove="Assets\Images\Satellite3.png" />
@@ -36,13 +35,16 @@
     <None Remove="Assets\Images\watchit2.png" />
     <None Remove="Assets\Images\watchit3.png" />
     <None Remove="Assets\Images\watchit4.png" />
+    <None Remove="Assets\Images\playerWithCharge0.png" />
+    <None Remove="Assets\Images\playerWithCharge1.png" />
+    <None Remove="Assets\Images\playerWithCharge2.png" />
+    <None Remove="Assets\Images\playerWithCharge3.png" />
     <Resource Include="Assets\Images\Bug1.png" />
     <Resource Include="Assets\Images\Bug2.png" />
     <Resource Include="Assets\Images\Bug3.png" />
     <Resource Include="Assets\Images\Bug4.png" />
     <Resource Include="Assets\Images\logo-large.png" />
     <Resource Include="Assets\Images\logo-small.png" />
-    <Resource Include="Assets\Images\player.png" />
     <Resource Include="Assets\Images\Satellite1.png" />
     <Resource Include="Assets\Images\Satellite2.png" />
     <Resource Include="Assets\Images\Satellite3.png" />
@@ -64,6 +66,10 @@
     <Resource Include="Assets\Images\watchit2.png" />
     <Resource Include="Assets\Images\watchit3.png" />
     <Resource Include="Assets\Images\watchit4.png" />
+    <Resource Include="Assets\Images\playerWithCharge0.png" />
+    <Resource Include="Assets\Images\playerWithCharge1.png" />
+    <Resource Include="Assets\Images\playerWithCharge2.png" />
+    <Resource Include="Assets\Images\playerWithCharge3.png" />
   </ItemGroup>
   
   <ItemGroup Label="Fonts">
