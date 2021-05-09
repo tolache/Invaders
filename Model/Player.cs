@@ -9,7 +9,7 @@ namespace Invaders.Model
         public static readonly Size PlayerSize = new(25,15);
 
         private const int BatterySize = 3;
-        private const int BatteryChargeRateMs = 850;
+        private const int BatteryChargeRateMs = 500;
         private DateTime _batteryChargeChange;
         private readonly TimeSpan _batteryChargeRate;
 
