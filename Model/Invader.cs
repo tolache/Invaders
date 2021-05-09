@@ -40,10 +40,10 @@ namespace Invaders.Model
             switch (direction)
             {
                 case Direction.Left:
-                    Location = new Point(oldLocation.X - Size.Width, oldLocation.Y);
+                    Location = new Point(oldLocation.X - Size.Width / 2, oldLocation.Y);
                     break;
                 case Direction.Right:
-                    Location = new Point(oldLocation.X + Size.Width, oldLocation.Y);
+                    Location = new Point(oldLocation.X + Size.Width / 2, oldLocation.Y);
                     break;
                 case Direction.Down:
                     Location = new Point(oldLocation.X, oldLocation.Y + Size.Height);

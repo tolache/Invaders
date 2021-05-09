@@ -208,17 +208,16 @@ namespace Invaders.Model
             
             void MoveInvaders()
             {
-                TimeSpan updateInterval = TimeSpan.FromMilliseconds(1000);
+                TimeSpan updateInterval = TimeSpan.FromMilliseconds(500);
                 if (DateTime.Now - _lastUpdated < updateInterval)
                 {
-                    // TODO: check and update the private framesSkipped field??
                     return;
                 }
                 
                 _justMovedDown = false;
 
                 IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
-                    where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 3
+                    where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 2
                     select invader;
                 if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
                 {
@@ -231,7 +230,7 @@ namespace Invaders.Model
                 }
                 
                 IEnumerable<Invader> invadersCloseToLeftBoundary = from invader in _invaders
-                    where invader.Location.X < invader.Size.Width * 2
+                    where invader.Location.X < invader.Size.Width
                     select invader;
                 if (invadersCloseToLeftBoundary.Any() && _invaderDirection == Direction.Left)
                 {
