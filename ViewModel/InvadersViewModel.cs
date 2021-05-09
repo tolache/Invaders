@@ -400,13 +400,8 @@ namespace Invaders.ViewModel
 
             void UpdateLivesIndicator()
             {
-                if (Lives.Count > _model.Lives)
+                if (Lives.Count > _model.Lives && _model.Lives >= 0)
                 {
-                    if (_model.Lives < 0)
-                    {
-                        return;
-                    }
-
                     int livesToRemove = Lives.Count - _model.Lives;
                     for (int i = 1; i <= livesToRemove; i++)
                     {
