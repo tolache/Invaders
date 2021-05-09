@@ -87,7 +87,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="../Assets/Images/player.png"
+                            <Image Source="../Assets/Images/playerWithCharge0.png"
                                    Stretch="Fill"
                                    Width="20"
                                    Height="12" />
