@@ -170,17 +170,17 @@ namespace Invaders.Model
             {
                 _playerDied = null;
             }
-            
+
             MoveInvaders();
             MoveShots();
             ReturnFire();
-            CheckInvaderIsHit();
+            DestroyHitInvaders();
             if (!PlayerDying)
             {
-                CheckPlayerIsHit();
+                DestroyHitPlayer();
             }
             UpdateAllShipsAndStars();
-            CheckIfInvadersReachedBottom();
+            CheckInvadersReachedBottom();
             
             void Twinkle()
             {
@@ -348,7 +348,7 @@ namespace Invaders.Model
                 }
             }
 
-            void CheckInvaderIsHit()
+            void DestroyHitInvaders()
             {
                 List<Shot> playerShotsCopy = new List<Shot>(_playerShots);
                 List<Invader> invadersCopy = new List<Invader>(_invaders);
@@ -366,7 +366,7 @@ namespace Invaders.Model
                 }
             }
 
-            void CheckPlayerIsHit()
+            void DestroyHitPlayer()
             {
                 List<Shot> invaderShotsCopy = new List<Shot>(_invaderShots);
                 foreach (Shot shot in invaderShotsCopy.Where(shot => RectsOverlap(shot.Area, _player.Area)))
@@ -383,7 +383,7 @@ namespace Invaders.Model
                 }
             }
 
-            void CheckIfInvadersReachedBottom()
+            void CheckInvadersReachedBottom()
             {
                 var invadersReachedBottom = from invader in _invaders
                     where invader.Location.Y >= _player.Location.Y - _verticalInvaderSpacing
