@@ -127,6 +127,16 @@ namespace Invaders.View
             _lastGestureIsTap = true;
         }
 
+        private void MainPage_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _invadersViewModel.KeyDown(Key.Space);
+        }
+        
+        private void MainPage_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _invadersViewModel.KeyUp(Key.Space);
+        }
+
         private void StartButton_OnClick(object sender, RoutedEventArgs e)
         {
             _invadersViewModel.StartGame();

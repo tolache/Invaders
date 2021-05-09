@@ -19,7 +19,9 @@
       ManipulationCompleted="MainPage_OnManipulationCompleted"
       Loaded="MainPage_OnLoaded"
       Unloaded="MainPage_OnUnloaded"
-      TouchLeave="MainPage_OnTouchLeave">
+      TouchLeave="MainPage_OnTouchLeave"
+      MouseDown="MainPage_OnMouseDown"
+      MouseUp="MainPage_OnMouseUp">
     <Page.Resources>
         <viewModel:InvadersViewModel x:Key="InvadersViewModel" />
         <viewModel:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
