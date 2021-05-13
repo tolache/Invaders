@@ -9,7 +9,7 @@ namespace Invaders.Model
         public static readonly Size PlayerSize = new(25,15);
 
         private const int BatterySize = 3;
-        private const int BatteryChargeRateMs = 500;
+        private const int BatteryChargeTimeMs = 500;
         private DateTime _batteryChargeChange;
         private readonly TimeSpan _batteryChargeRate;
 
@@ -20,7 +20,7 @@ namespace Invaders.Model
         {
             CurrentBatteryCharge = BatterySize;
             _batteryChargeChange = DateTime.Now;
-            _batteryChargeRate = TimeSpan.FromMilliseconds(BatteryChargeRateMs);
+            _batteryChargeRate = TimeSpan.FromMilliseconds(BatteryChargeTimeMs);
         }
 
         public override void Move(Direction direction)
