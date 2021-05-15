@@ -7,5 +7,6 @@
         Saucer,
         Bug,
         Spaceship,
+        Mothership,
     }
 }

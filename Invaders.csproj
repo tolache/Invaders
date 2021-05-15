@@ -42,6 +42,7 @@
     <None Remove="Assets\Images\mothership1.PNG" />
     <None Remove="Assets\Images\mothership2.PNG" />
     <None Remove="Assets\Images\mothership3.PNG" />
+    <None Remove="Assets\Images\Mothership4.PNG" />
     <Resource Include="Assets\Images\Bug1.png" />
     <Resource Include="Assets\Images\Bug2.png" />
     <Resource Include="Assets\Images\Bug3.png" />
@@ -73,9 +74,10 @@
     <Resource Include="Assets\Images\playerWithCharge1.png" />
     <Resource Include="Assets\Images\playerWithCharge2.png" />
     <Resource Include="Assets\Images\playerWithCharge3.png" />
-    <Resource Include="Assets\Images\mothership1.PNG" />
-    <Resource Include="Assets\Images\mothership2.PNG" />
-    <Resource Include="Assets\Images\mothership3.PNG" />
+    <Resource Include="Assets\Images\Mothership1.PNG" />
+    <Resource Include="Assets\Images\Mothership2.PNG" />
+    <Resource Include="Assets\Images\Mothership3.PNG" />
+    <Resource Include="Assets\Images\Mothership4.PNG" />
   </ItemGroup>
   
   <ItemGroup Label="Fonts">

@@ -25,7 +25,7 @@
     <Page.Resources>
         <viewModel:InvadersViewModel x:Key="InvadersViewModel" />
         <viewModel:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <viewModel:BoolToGameOverTextConverter x:Key="BoolToGameOverTextConverter"/>
+        <viewModel:BoolToGameOverTextConverter x:Key="BoolToGameOverTextConverter" />
         <Style TargetType="Button">
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Height" Value="20" />
@@ -34,7 +34,8 @@
             <Setter Property="Focusable" Value="False" />
         </Style>
         <Style TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="pack://application:,,,/Invaders;component/Assets/Fonts/joystix_monospace.ttf#Joystix Monospace" />
+            <Setter Property="FontFamily"
+                    Value="pack://application:,,,/Invaders;component/Assets/Fonts/joystix_monospace.ttf#Joystix Monospace" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="HorizontalAlignment" Value="Center" />
         </Style>
@@ -69,10 +70,14 @@
                     IsHitTestVisible="False">
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right">
-                <TextBlock Text="{Binding Wave}"
-                           Margin="5,0" />
-                <TextBlock Text="{Binding Score}"
-                           Margin="5,0" />
+                <TextBlock Margin="5,0">
+                    <Run Text="Wave" />
+                    <Run Text="{Binding Wave, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Margin="5,0">
+                    <Run Text="Score" />
+                    <Run Text="{Binding Score, Mode=OneWay}" />
+                </TextBlock>
             </StackPanel>
             <ListView HorizontalAlignment="Right"
                       BorderThickness="0"

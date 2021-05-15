@@ -25,8 +25,9 @@ namespace Invaders.Model
         public bool GamePaused { get; private set; }
         
         private DateTime? _playerDied;
-        private bool PlayerDying => _playerDied.HasValue;
-        private bool PlayerFrozen => PlayerDying && DateTime.Now - _playerDied < _playerFreezeDuration;
+        private ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.Alive;
+        private bool PlayerFrozen => PlayerStatus == ShipStatus.Killed &&
+                                     DateTime.Now - _playerDied < _playerFreezeDuration;
 
         private Player _player;
 
@@ -36,11 +37,13 @@ namespace Invaders.Model
         private readonly List<Point> _stars = new();
         
         private Direction _invaderDirection = Direction.Right;
+        private Direction _mothershipDirection = Direction.Right;
         private bool _justMovedDown = false;
         private DateTime _lastUpdated = DateTime.MinValue;
 
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
         private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);
+        private bool _mothershipCreated;
 
         public InvadersModel()
         {
@@ -57,10 +60,11 @@ namespace Invaders.Model
         {
             GameOver = false;
             Victory = false;
+            _mothershipCreated = false;
             Score = 0;
             foreach (Invader invader in _invaders)
             {
-                OnShipChanged(invader, true);
+                OnShipChanged(invader, ShipStatus.Killed);
             }
             _invaders.Clear();
             
@@ -88,7 +92,7 @@ namespace Invaders.Model
             }
             
             _player = new Player(GetPlayerStartLocation(), Player.PlayerSize);
-            OnShipChanged(_player, false);
+            OnShipChanged(_player, ShipStatus.Alive);
             Lives = 2;
             Wave = 0;
             NextWave();
@@ -119,9 +123,9 @@ namespace Invaders.Model
         {
             if (PlayerFrozen) return;
             if (PlayerReachedBoundary()) return;
-            
+
             _player.Move(direction);
-            OnShipChanged(_player, PlayerDying);
+            OnShipChanged(_player, PlayerStatus);
 
             bool PlayerReachedBoundary()
             {
@@ -170,12 +174,17 @@ namespace Invaders.Model
             {
                 _playerDied = null;
             }
+            
+            if (Wave == 3 && !_mothershipCreated && CheckCanCreateMothership())
+            {
+                CreateMothership();
+            }
 
             MoveInvaders();
             MoveShots();
             ReturnFire();
             DestroyHitInvaders();
-            if (!PlayerDying)
+            if (PlayerStatus == ShipStatus.Alive)
             {
                 DestroyHitPlayer();
             }
@@ -217,11 +226,11 @@ namespace Invaders.Model
                 _justMovedDown = false;
 
                 IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
-                    where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 2
+                    where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 2 && invader.Type != InvaderType.Mothership
                     select invader;
                 if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
                 {
-                    foreach (Invader invader in _invaders)
+                    foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
                     {
                         invader.Move(Direction.Down);
                     }
@@ -230,11 +239,11 @@ namespace Invaders.Model
                 }
                 
                 IEnumerable<Invader> invadersCloseToLeftBoundary = from invader in _invaders
-                    where invader.Location.X < invader.Size.Width
+                    where invader.Location.X < invader.Size.Width && invader.Type != InvaderType.Mothership
                     select invader;
                 if (invadersCloseToLeftBoundary.Any() && _invaderDirection == Direction.Left)
                 {
-                    foreach (Invader invader in _invaders)
+                    foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
                     {
                         invader.Move(Direction.Down);
                     }
@@ -244,12 +253,26 @@ namespace Invaders.Model
 
                 if (!_justMovedDown)
                 {
-                    foreach (Invader invader in _invaders)
+                    foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
                     {
                         invader.Move(_invaderDirection);
                     }
                 }
-                
+
+                if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
+                {
+                    Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
+                    if (CheckMothershipReachedBorder())
+                    {
+                        _invaders.Remove(mothership);
+                        OnShipChanged(mothership, ShipStatus.OffScreen);
+                    }
+                    else
+                    {
+                        mothership.Move(_mothershipDirection);
+                    }
+                }
+
                 _lastUpdated = DateTime.Now;
             }
 
@@ -360,7 +383,7 @@ namespace Invaders.Model
                         OnShotMoved(shot, true);
                         
                         _invaders.Remove(invader);
-                        OnShipChanged(invader, true);
+                        OnShipChanged(invader, ShipStatus.Killed);
                         Score += invader.Score;
                     }
                 }
@@ -375,7 +398,7 @@ namespace Invaders.Model
                     OnShotMoved(shot, true);
                     _playerDied = DateTime.Now;
                     Lives--;
-                    OnShipChanged(_player, PlayerDying);
+                    OnShipChanged(_player, PlayerStatus);
                     if (Lives < 0)
                     {
                         EndGame();
@@ -409,11 +432,11 @@ namespace Invaders.Model
         {
             _player?.ChargeBattery();
 
-            OnShipChanged(_player, PlayerDying);
+            OnShipChanged(_player, PlayerStatus);
             
             foreach (Invader invader in _invaders)
             {
-                OnShipChanged(invader, false);
+                OnShipChanged(invader, ShipStatus.Alive);
             }
 
             foreach (Point star in _stars)
@@ -428,6 +451,24 @@ namespace Invaders.Model
             {
                 OnShotMoved(shot, false);
             }
+        }
+
+        private bool CheckMothershipReachedBorder()
+        {
+            if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
+            {
+                Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
+                if (_mothershipDirection == Direction.Right
+                    && mothership.Location.X >
+                    PlayAreaSize.Width - mothership.Size.Width - Invader.InvaderSize.Width / 2
+                    || _mothershipDirection == Direction.Left
+                    && mothership.Location.X < Invader.InvaderSize.Width / 2)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void NextWave()
@@ -508,10 +549,57 @@ namespace Invaders.Model
             }
         }
 
-        public event EventHandler<ShipChangedEventArgs> ShipChanged;
-        protected virtual void OnShipChanged(Ship ship, bool killed)
+        private bool CheckCanCreateMothership()
         {
-            ShipChangedEventArgs e = new ShipChangedEventArgs(ship, killed);
+            bool haveSpace = false;
+            bool halfInvadersDied = false;
+            int uppermostInvaderY = GetUppermostInvaderY();
+            if (uppermostInvaderY > Invader.MothershipSize.Height * 2)
+                haveSpace = true;
+            if (_invaders.Count <= 33)
+                halfInvadersDied = true;
+            
+            if (haveSpace && halfInvadersDied)
+            {
+                return true;
+            }
+        
+            return false;
+        }
+        
+        private int GetUppermostInvaderY()
+        {
+            int y = PlayAreaSize.Height;
+            foreach (Invader invader in _invaders)
+            {
+                if (invader.Location.Y < y)
+                {
+                    y = invader.Location.Y;
+                }
+            }
+            return y;
+        }
+        
+        private void CreateMothership()
+        {
+            Size size = new(Invader.MothershipSize.Width,Invader.MothershipSize.Height);
+            int startY = (GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
+            int startX = 0;
+            if (_random.Next(2) == 1)
+            {
+                startX = PlayAreaSize.Width - Invader.MothershipSize.Width;
+                _mothershipDirection = Direction.Left;
+            }
+            Point startLocation = new(startX, startY);
+            Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
+            _invaders.Add(mothership);
+            _mothershipCreated = true;
+        }
+
+        public event EventHandler<ShipChangedEventArgs> ShipChanged;
+        protected virtual void OnShipChanged(Ship ship, ShipStatus status)
+        {
+            ShipChangedEventArgs e = new ShipChangedEventArgs(ship, status);
             ShipChanged?.Invoke(this, e);
         }
 

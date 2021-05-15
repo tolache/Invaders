@@ -62,7 +62,7 @@ namespace Invaders.ViewModel
         private bool _playerHitAnimationInProgress = false;
         private readonly Dictionary<Invader, FrameworkElement> _invaders = new();
 
-        private readonly Dictionary<FrameworkElement, DateTime> _shotInvaders = new();
+        private readonly Dictionary<FrameworkElement, DateTime> _removedInvaders = new();
 
         private readonly Dictionary<Shot, FrameworkElement> _shots = new();
         private readonly Dictionary<System.Drawing.Point, FrameworkElement> _stars = new();
@@ -188,7 +188,7 @@ namespace Invaders.ViewModel
 
         private void OnModelShipChanged(object? sender, ShipChangedEventArgs e)
         {
-            if (!e.Killed)
+            if (e.ShipStatus == ShipStatus.Alive)
             {
                 if (e.Ship is Invader invader)
                 {
@@ -240,12 +240,11 @@ namespace Invaders.ViewModel
             {
                 if (e.Ship is Invader invader)
                 {
-                    if (!_invaders.ContainsKey(invader)) return;
-                    AnimatedImage invaderAnimatedImage = _invaders[invader] as AnimatedImage;
-                    invaderAnimatedImage?.FadeOut();
-                    _shotInvaders.Add(_invaders[invader], DateTime.Now);
-                    _invaders.Remove(invader);
-                    _audioPlaybackViewModel.LaserHitCommand.Execute(null);
+                    RemoveInvaderSprite(invader);
+                    if (e.ShipStatus == ShipStatus.Killed)
+                    {
+                        _audioPlaybackViewModel.LaserHitCommand.Execute(null);
+                    }
                 }
                 else if (e.Ship is Player player)
                 {
@@ -267,6 +266,15 @@ namespace Invaders.ViewModel
                     InvadersHelper.ResizeElement(_playerControl, player.Size.Width, player.Size.Height, Scale);
                 }
             }
+        }
+
+        private void RemoveInvaderSprite(Invader invader)
+        {
+            if (!_invaders.ContainsKey(invader)) return;
+            AnimatedImage invaderAnimatedImage = _invaders[invader] as AnimatedImage;
+            invaderAnimatedImage?.FadeOut();
+            _removedInvaders.Add(_invaders[invader], DateTime.Now);
+            _invaders.Remove(invader);
         }
 
         private void OnModelShotMoved(object? sender, ShotMovedEventArgs e)
@@ -356,13 +364,13 @@ namespace Invaders.ViewModel
             UpdateStats();
             UpdateLivesIndicator();
 
-            foreach (FrameworkElement shotInvader in _shotInvaders.Keys.ToList())
+            foreach (FrameworkElement shotInvader in _removedInvaders.Keys.ToList())
             {
-                TimeSpan timeSinceInvaderWasShot = DateTime.Now - _shotInvaders[shotInvader];
+                TimeSpan timeSinceInvaderWasShot = DateTime.Now - _removedInvaders[shotInvader];
                 if (timeSinceInvaderWasShot > TimeSpan.FromMilliseconds(500))
                 {
                     _sprites.Remove(shotInvader);
-                    _shotInvaders.Remove(shotInvader);
+                    _removedInvaders.Remove(shotInvader);
                 }
             }
 
