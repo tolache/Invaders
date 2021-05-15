@@ -6,6 +6,7 @@ namespace Invaders.Model
     public class Invader : Ship
     {
         public static Size InvaderSize => new(15, 15);
+        public static Size MothershipSize => new(InvaderSize.Width * 5, InvaderSize.Height * 2);
         public InvaderType Type { get; }
         public int Score { get; }
         
@@ -29,6 +30,9 @@ namespace Invaders.Model
                 case InvaderType.Spaceship:
                     Score = 50;
                     break;
+                case InvaderType.Mothership:
+                    Score = 250;
+                    break;
                 default:
                     throw new NotImplementedException($"Invader type '{type}' is not implemented.");
             }
@@ -40,16 +44,16 @@ namespace Invaders.Model
             switch (direction)
             {
                 case Direction.Left:
-                    Location = new Point(oldLocation.X - Size.Width / 2, oldLocation.Y);
+                    Location = new Point(oldLocation.X - InvaderSize.Width / 2, oldLocation.Y);
                     break;
                 case Direction.Right:
-                    Location = new Point(oldLocation.X + Size.Width / 2, oldLocation.Y);
+                    Location = new Point(oldLocation.X + InvaderSize.Width / 2, oldLocation.Y);
                     break;
                 case Direction.Down:
-                    Location = new Point(oldLocation.X, oldLocation.Y + Size.Height);
+                    Location = new Point(oldLocation.X, oldLocation.Y + InvaderSize.Height);
                     break;
                 default:
-                    throw new NotImplementedException($"Moving {GetType()} {direction} is not implemented.");
+                    throw new NotImplementedException($"Moving invader type '{Type}' in direction '{direction}' is not implemented.");
             }
         }
     }
