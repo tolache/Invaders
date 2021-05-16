@@ -43,7 +43,7 @@ namespace Invaders.Model
 
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
         private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);
-        private bool _mothershipCreated;
+        private bool _mothershipCreationAttempted;
 
         public InvadersModel()
         {
@@ -60,7 +60,7 @@ namespace Invaders.Model
         {
             GameOver = false;
             Victory = false;
-            _mothershipCreated = false;
+            _mothershipCreationAttempted = false;
             Score = 0;
             foreach (Invader invader in _invaders)
             {
@@ -178,9 +178,10 @@ namespace Invaders.Model
                 _playerDied = null;
             }
             
-            if (Wave == 3 && !_mothershipCreated && CheckCanCreateMothership())
+            if (!_mothershipCreationAttempted && CheckCanCreateMothership())
             {
-                CreateMothership();
+                if (_random.Next(0,3) == 2) CreateMothership();
+                _mothershipCreationAttempted = true;
             }
 
             MoveInvaders();
@@ -484,6 +485,7 @@ namespace Invaders.Model
         private void NextWave()
         {
             Wave++;
+            _mothershipCreationAttempted = false;
             if (Wave == 4)
             {
                 return;
@@ -603,7 +605,6 @@ namespace Invaders.Model
             Point startLocation = new(startX, startY);
             Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
             _invaders.Add(mothership);
-            _mothershipCreated = true;
         }
 
         public event EventHandler<ShipChangedEventArgs> ShipChanged;
