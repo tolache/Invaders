@@ -188,7 +188,7 @@ namespace Invaders.ViewModel
 
         private void OnModelShipChanged(object? sender, ShipChangedEventArgs e)
         {
-            if (e.ShipStatus == ShipStatus.Alive)
+            if (e.Ship.ShipStatus == ShipStatus.AliveNormal)
             {
                 if (e.Ship is Invader invader)
                 {
@@ -241,7 +241,7 @@ namespace Invaders.ViewModel
                 if (e.Ship is Invader invader)
                 {
                     RemoveInvaderSprite(invader);
-                    if (e.ShipStatus == ShipStatus.Killed)
+                    if (e.Ship.ShipStatus == ShipStatus.Killed)
                     {
                         _audioPlaybackViewModel.LaserHitCommand.Execute(null);
                     }

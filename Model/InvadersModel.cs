@@ -25,7 +25,7 @@ namespace Invaders.Model
         public bool GamePaused { get; private set; }
         
         private DateTime? _playerDied;
-        private ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.Alive;
+        private ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
         private bool PlayerFrozen => PlayerStatus == ShipStatus.Killed &&
                                      DateTime.Now - _playerDied < _playerFreezeDuration;
 
@@ -64,7 +64,8 @@ namespace Invaders.Model
             Score = 0;
             foreach (Invader invader in _invaders)
             {
-                OnShipChanged(invader, ShipStatus.Killed);
+                invader.ShipStatus = ShipStatus.Killed;
+                OnShipChanged(invader);
             }
             _invaders.Clear();
             
@@ -92,7 +93,8 @@ namespace Invaders.Model
             }
             
             _player = new Player(GetPlayerStartLocation(), Player.PlayerSize);
-            OnShipChanged(_player, ShipStatus.Alive);
+            _player.ShipStatus = ShipStatus.AliveNormal;
+            OnShipChanged(_player);
             Lives = 2;
             Wave = 0;
             NextWave();
@@ -125,7 +127,8 @@ namespace Invaders.Model
             if (PlayerReachedBoundary()) return;
 
             _player.Move(direction);
-            OnShipChanged(_player, PlayerStatus);
+            _player.ShipStatus = PlayerStatus;
+            OnShipChanged(_player);
 
             bool PlayerReachedBoundary()
             {
@@ -184,7 +187,7 @@ namespace Invaders.Model
             MoveShots();
             ReturnFire();
             DestroyHitInvaders();
-            if (PlayerStatus == ShipStatus.Alive)
+            if (PlayerStatus == ShipStatus.AliveNormal)
             {
                 DestroyHitPlayer();
             }
@@ -265,7 +268,8 @@ namespace Invaders.Model
                     if (CheckMothershipReachedBorder())
                     {
                         _invaders.Remove(mothership);
-                        OnShipChanged(mothership, ShipStatus.OffScreen);
+                        mothership.ShipStatus = ShipStatus.OffScreen;
+                        OnShipChanged(mothership);
                     }
                     else
                     {
@@ -383,7 +387,8 @@ namespace Invaders.Model
                         OnShotMoved(shot, true);
                         
                         _invaders.Remove(invader);
-                        OnShipChanged(invader, ShipStatus.Killed);
+                        invader.ShipStatus = ShipStatus.Killed;
+                        OnShipChanged(invader);
                         Score += invader.Score;
                     }
                 }
@@ -398,7 +403,8 @@ namespace Invaders.Model
                     OnShotMoved(shot, true);
                     _playerDied = DateTime.Now;
                     Lives--;
-                    OnShipChanged(_player, PlayerStatus);
+                    _player.ShipStatus = PlayerStatus;
+                    OnShipChanged(_player);
                     if (Lives < 0)
                     {
                         EndGame();
@@ -430,13 +436,17 @@ namespace Invaders.Model
 
         public void UpdateAllShipsAndStars()
         {
-            _player?.ChargeBattery();
+            if (_player != null)
+            {
+                _player.ChargeBattery();
+                _player.ShipStatus = PlayerStatus;
+                OnShipChanged(_player);
+            }
 
-            OnShipChanged(_player, PlayerStatus);
-            
             foreach (Invader invader in _invaders)
             {
-                OnShipChanged(invader, ShipStatus.Alive);
+                invader.ShipStatus = ShipStatus.AliveNormal;
+                OnShipChanged(invader);
             }
 
             foreach (Point star in _stars)
@@ -597,9 +607,9 @@ namespace Invaders.Model
         }
 
         public event EventHandler<ShipChangedEventArgs> ShipChanged;
-        protected virtual void OnShipChanged(Ship ship, ShipStatus status)
+        protected virtual void OnShipChanged(Ship ship)
         {
-            ShipChangedEventArgs e = new ShipChangedEventArgs(ship, status);
+            ShipChangedEventArgs e = new ShipChangedEventArgs(ship);
             ShipChanged?.Invoke(this, e);
         }
 
