@@ -50,7 +50,8 @@ namespace Invaders.ViewModel
 			Description = description.Description;
 			Publisher = company.Company;
 
-			AdditionalNotes = "This is a test assignment app from Head First C# 3rd edition book.";
+			AdditionalNotes = "This is a test assignment app from Head First C# 3rd edition book." + Environment.NewLine +
+			                  "Special thanks to @annliseevnaart";
 		}
 
 		#endregion

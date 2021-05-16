@@ -7,7 +7,7 @@ using Size = System.Drawing.Size;
 
 namespace Invaders.Model
 {
-    public class InvadersModel
+    public sealed class InvadersModel
     {
         private static readonly Size PlayAreaSize = new(400, 300);
         private const int InitialStarCount = 50;
@@ -22,8 +22,8 @@ namespace Invaders.Model
 
         public bool GameOver { get; private set; }
         public bool Victory { get; private set; }
-        public bool GamePaused { get; private set; }
         
+        private bool GamePaused { get; set; }
         private DateTime? _playerDied;
         private ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
         private bool PlayerFrozen => PlayerStatus == ShipStatus.Killed &&
@@ -38,7 +38,7 @@ namespace Invaders.Model
         
         private Direction _invaderDirection = Direction.Right;
         private Direction _mothershipDirection = Direction.Right;
-        private bool _justMovedDown = false;
+        private bool _justMovedDown;
         private DateTime _lastUpdated = DateTime.MinValue;
 
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
@@ -607,21 +607,24 @@ namespace Invaders.Model
         }
 
         public event EventHandler<ShipChangedEventArgs> ShipChanged;
-        protected virtual void OnShipChanged(Ship ship)
+
+        private void OnShipChanged(Ship ship)
         {
             ShipChangedEventArgs e = new ShipChangedEventArgs(ship);
             ShipChanged?.Invoke(this, e);
         }
 
         public event EventHandler<ShotMovedEventArgs> ShotMoved;
-        protected virtual void OnShotMoved(Shot shot, bool disappeared)
+
+        private void OnShotMoved(Shot shot, bool disappeared)
         {
             ShotMovedEventArgs e = new ShotMovedEventArgs(shot, disappeared);
             ShotMoved?.Invoke(this, e);
         }
 
         public event EventHandler<StarChangedEventArgs> StarChanged;
-        protected virtual void OnStarChanged(Point location, bool disappeared)
+
+        private void OnStarChanged(Point location, bool disappeared)
         {
             StarChangedEventArgs e = new StarChangedEventArgs(location, disappeared);
             StarChanged?.Invoke(this, e);

@@ -58,8 +58,8 @@ namespace Invaders.ViewModel
 
         private readonly InvadersModel _model = new();
         private readonly DispatcherTimer _timer = new();
-        private FrameworkElement _playerControl = null;
-        private bool _playerHitAnimationInProgress = false;
+        private FrameworkElement _playerControl;
+        private bool _playerHitAnimationInProgress;
         private readonly Dictionary<Invader, FrameworkElement> _invaders = new();
 
         private readonly Dictionary<FrameworkElement, DateTime> _removedInvaders = new();
@@ -68,8 +68,8 @@ namespace Invaders.ViewModel
         private readonly Dictionary<System.Drawing.Point, FrameworkElement> _stars = new();
         private readonly Dictionary<FrameworkElement, DateTime> _fadedStars = new();
         private readonly List<FrameworkElement> _scanLines = new();
-        private DateTime? _leftAction = null;
-        private DateTime? _rightAction = null;
+        private DateTime? _leftAction;
+        private DateTime? _rightAction;
         
         public InvadersViewModel()
         {

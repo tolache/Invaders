@@ -10,7 +10,7 @@ namespace Invaders.View
 {
     public static class InvadersHelper
     {
-        private static readonly Random _random = new Random();
+        private static readonly Random Random = new Random();
 
         public static AnimatedImage InvaderControlFactory(InvaderType type, Point location, double scale)
         {
@@ -88,7 +88,7 @@ namespace Invaders.View
         public static StarControl StarControlFactory(Point location, double scale)
         {
             StarControl star = new();
-            int randomInt = _random.Next(3);
+            int randomInt = Random.Next(3);
             switch (randomInt)
             {
                 case 0:
@@ -122,7 +122,7 @@ namespace Invaders.View
 
         private static SolidColorBrush GetRandomStarColor()
         {
-            switch (_random.Next(7))
+            switch (Random.Next(7))
             {
                 case 0:
                     return new SolidColorBrush(Colors.OrangeRed);
