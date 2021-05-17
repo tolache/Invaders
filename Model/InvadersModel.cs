@@ -11,6 +11,7 @@ namespace Invaders.Model
     {
         private static readonly Size PlayAreaSize = new(400, 300);
         private const int InitialStarCount = 50;
+        private const int TotalWaves = 4;
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
 
@@ -96,7 +97,7 @@ namespace Invaders.Model
             _player.ShipStatus = ShipStatus.AliveNormal;
             OnShipChanged(_player);
             Lives = 2;
-            Wave = 0;
+            Wave = 3;
             NextWave();
 
             Point GetPlayerStartLocation()
@@ -163,7 +164,7 @@ namespace Invaders.Model
                 return;
             }
 
-            if (Wave == 4)
+            if (Wave > TotalWaves)
             {
                 EndGame(true);
                 return;
@@ -486,7 +487,7 @@ namespace Invaders.Model
         {
             Wave++;
             _mothershipCreationAttempted = false;
-            if (Wave == 4)
+            if (Wave > TotalWaves)
             {
                 return;
             }
@@ -544,17 +545,30 @@ namespace Invaders.Model
                         return (InvaderType) 3;
                 
                     case(3, 1):
-                        return (InvaderType) 0;
+                        return (InvaderType) 5;
                     case (3, 2):
                         return (InvaderType) 1;
                     case (3, 3):
-                        return (InvaderType) 1;
+                        return (InvaderType) 2;
                     case (3, 4):
                         return (InvaderType) 2;
                     case (3, 5):
-                        return (InvaderType) 2;
+                        return (InvaderType) 3;
                     case (3, 6):
                         return (InvaderType) 3;
+                    
+                    case(4, 1):
+                        return (InvaderType) 5;
+                    case (4, 2):
+                        return (InvaderType) 5;
+                    case (4, 3):
+                        return (InvaderType) 2;
+                    case (4, 4):
+                        return (InvaderType) 3;
+                    case (4, 5):
+                        return (InvaderType) 3;
+                    case (4, 6):
+                        return (InvaderType) 4;
                     default:
                         throw new NotImplementedException($"Failed to determine invader type for wave {wave} and row {row}.");
                 }

@@ -30,6 +30,9 @@ namespace Invaders.Model
                 case InvaderType.Spaceship:
                     Score = 50;
                     break;
+                case InvaderType.WatchIt:
+                    Score = 60;
+                    break;
                 case InvaderType.Mothership:
                     Score = 250;
                     break;
