@@ -97,7 +97,7 @@ namespace Invaders.Model
             _player.ShipStatus = ShipStatus.AliveNormal;
             OnShipChanged(_player);
             Lives = 2;
-            Wave = 3;
+            Wave = 0;
             NextWave();
 
             Point GetPlayerStartLocation()
