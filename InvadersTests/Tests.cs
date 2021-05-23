@@ -1,6 +1,4 @@
-using System;
 using Xunit;
-using Invaders;
 using Invaders.Model;
 
 namespace InvadersTests
