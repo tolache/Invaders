@@ -10,10 +10,10 @@ namespace Invaders.Model
     public sealed class InvadersModel
     {
         private static readonly Size PlayAreaSize = new(400, 300);
-        private const int InitialStarCount = 50;
         private const int TotalWaves = 4;
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
+        private StarManager _starManager;
 
         private readonly Random _random = new();
 
@@ -35,8 +35,7 @@ namespace Invaders.Model
         private readonly List<Invader> _invaders = new();
         private readonly List<Shot> _playerShots = new();
         private readonly List<Shot> _invaderShots = new();
-        private readonly List<Point> _stars = new();
-        
+
         private Direction _invaderDirection = Direction.Right;
         private Direction _mothershipDirection = Direction.Right;
         private bool _justMovedDown;
@@ -48,6 +47,7 @@ namespace Invaders.Model
 
         public InvadersModel()
         {
+            _starManager = new StarManager(OnStarChanged, PlayAreaSize);
             EndGame();
         }
 
@@ -82,17 +82,8 @@ namespace Invaders.Model
             }
             _invaderShots.Clear();
             
-            foreach (var star in _stars)
-            {
-                OnStarChanged(star, true);
-            }
-            _stars.Clear();
+            _starManager.RecreateStars();
 
-            for (int i = 0; i < InitialStarCount; i++)
-            {
-                CreateStar();
-            }
-            
             _player = new Player(GetPlayerStartLocation(), Player.PlayerSize);
             _player.ShipStatus = ShipStatus.AliveNormal;
             OnShipChanged(_player);
@@ -144,20 +135,9 @@ namespace Invaders.Model
             }
         }
 
-        private void CreateStar()
-        {
-            int s = _random.Next(5, 20);
-            Size size = new Size(s, s);
-            int x = _random.Next(0, PlayAreaSize.Width - size.Width);
-            int y = _random.Next(0, PlayAreaSize.Height - size.Height);
-            Point location = new Point(x, y);
-            _stars.Add(location);
-            OnStarChanged(location, false);
-        }
-
         public void Update(bool paused)
         {
-            Twinkle();
+            _starManager.Twinkle();
             GamePaused = paused;
             if (GamePaused)
             {
@@ -195,31 +175,7 @@ namespace Invaders.Model
             }
             UpdateAllShipsAndStars();
             CheckInvadersReachedBottom();
-            
-            void Twinkle()
-            {
-                if (_stars.Count < InitialStarCount * 0.85 ||
-                    _stars.Count >= InitialStarCount * 0.85 && _stars.Count < InitialStarCount * 1.5 &&
-                    _random.Next(0, 2) == 1)
-                {
-                    CreateStar();
-                }
-                else
-                {
-                    RemoveStar();
-                }
-            
-                return;
 
-                void RemoveStar()
-                {
-                    int index = _random.Next(0, _stars.Count);
-                    Point star = _stars[index];
-                    _stars.RemoveAt(index);
-                    OnStarChanged(star, true);
-                }
-            }
-            
             void MoveInvaders()
             {
                 TimeSpan updateInterval = TimeSpan.FromMilliseconds(500);
@@ -451,10 +407,7 @@ namespace Invaders.Model
                 OnShipChanged(invader);
             }
 
-            foreach (Point star in _stars)
-            {
-                OnStarChanged(star, false);
-            }
+            _starManager.UpdateAllStars();
             
             List<Shot> allShots = new List<Shot>();
             allShots.AddRange(_playerShots);
