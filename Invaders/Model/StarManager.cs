@@ -8,16 +8,14 @@ namespace Invaders.Model
     {
         private readonly List<Point> _stars = new();
         private const int InitialStarCount = 50;
-        private readonly Size _playAreaSize;
         private readonly OnStarChanged _onStarChanged;
         private readonly Random _random = new();
 
         public delegate void OnStarChanged(Point location, bool disappeared);
 
-        public StarManager(OnStarChanged onStarChanged, Size playAreaSize)
+        public StarManager(OnStarChanged onStarChanged)
         {
             _onStarChanged = onStarChanged;
-            _playAreaSize = playAreaSize;
         }
         
         public void RecreateStars()
@@ -39,8 +37,8 @@ namespace Invaders.Model
         {
             int s = _random.Next(5, 20);
             Size size = new Size(s, s);
-            int x = _random.Next(0, _playAreaSize.Width - size.Width);
-            int y = _random.Next(0, _playAreaSize.Height - size.Height);
+            int x = _random.Next(0, InvadersModel.PlayAreaSize.Width - size.Width);
+            int y = _random.Next(0, InvadersModel.PlayAreaSize.Height - size.Height);
             Point location = new Point(x, y);
             _stars.Add(location);
             _onStarChanged(location, false);

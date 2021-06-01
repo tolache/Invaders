@@ -9,7 +9,6 @@ namespace Invaders.Model
 {
     public sealed class InvadersModel
     {
-        private static readonly Size PlayAreaSize = new(400, 300);
         private const int TotalWaves = 4;
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
@@ -17,6 +16,7 @@ namespace Invaders.Model
 
         private readonly Random _random = new();
 
+        public static readonly Size PlayAreaSize = new(400, 300);
         public int Score { get; private set; }
         public int Wave { get; private set; }
         public int Lives { get; private set; }
@@ -591,7 +591,6 @@ namespace Invaders.Model
         }
 
         public event EventHandler<StarChangedEventArgs> StarChanged;
-
         private void OnStarChanged(Point location, bool disappeared)
         {
             StarChangedEventArgs e = new StarChangedEventArgs(location, disappeared);
