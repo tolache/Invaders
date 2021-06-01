@@ -12,8 +12,8 @@ namespace Invaders.Model
         private const int TotalWaves = 4;
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
-        private StarManager _starManager;
-
+        private readonly StarManager _starManager;
+        private readonly ShotManager _shotManager;
         private readonly Random _random = new();
 
         public static readonly Size PlayAreaSize = new(400, 300);
@@ -33,8 +33,6 @@ namespace Invaders.Model
         private Player _player;
 
         private readonly List<Invader> _invaders = new();
-        private readonly List<Shot> _playerShots = new();
-        private readonly List<Shot> _invaderShots = new();
 
         private Direction _invaderDirection = Direction.Right;
         private Direction _mothershipDirection = Direction.Right;
@@ -47,7 +45,8 @@ namespace Invaders.Model
 
         public InvadersModel()
         {
-            _starManager = new StarManager(OnStarChanged, PlayAreaSize);
+            _starManager = new StarManager(OnStarChanged);
+            _shotManager = new ShotManager(OnShotMoved);
             EndGame();
         }
 
@@ -70,18 +69,8 @@ namespace Invaders.Model
             }
             _invaders.Clear();
             
-            foreach (Shot shot in _playerShots)
-            {
-                OnShotMoved(shot, true);
-            }
-            _playerShots.Clear();
-            
-            foreach (Shot shot in _invaderShots)
-            {
-                OnShotMoved(shot, true);
-            }
-            _invaderShots.Clear();
-            
+            _shotManager.ClearAllShots();
+
             _starManager.RecreateStars();
 
             _player = new Player(GetPlayerStartLocation(), Player.PlayerSize);
@@ -102,14 +91,7 @@ namespace Invaders.Model
         public void FireShot()
         {
             if (GameOver || GamePaused || PlayerFrozen || !_player.HasBatteryCharge) return;
-            
-            int shotX = _player.Location.X + _player.Size.Width / 2;
-            int shotY = _player.Location.Y - Shot.ShotSize.Height - 1;
-            Point shotLocation = new(shotX, shotY);
-            Shot shot = new Shot(shotLocation, Direction.Up);
-            _playerShots.Add(shot);
-            OnShotMoved(shot, false);
-            
+            _shotManager.AddShot(_player);
             _player.DrainBattery();
         }
 
@@ -166,7 +148,7 @@ namespace Invaders.Model
             }
 
             MoveInvaders();
-            MoveShots();
+            _shotManager.MoveShots();
             ReturnFire();
             DestroyHitInvaders();
             if (PlayerStatus == ShipStatus.AliveNormal)
@@ -238,59 +220,6 @@ namespace Invaders.Model
                 _lastUpdated = DateTime.Now;
             }
 
-            void MoveShots()
-            {
-                foreach (Shot invaderShot in _invaderShots)
-                {
-                    invaderShot.Move();
-                }
-    
-                IEnumerable<Shot> visibleInvaderShots = from shot in _invaderShots
-                    where shot.Location.Y + Shot.ShotSize.Height < PlayAreaSize.Height
-                    select shot;
-
-                List<Shot> visibleInvaderShotsList = visibleInvaderShots.ToList();
-                List<Shot> disappearedInvaderShots = _invaderShots.Except(visibleInvaderShotsList).ToList();
-    
-                _invaderShots.Clear();
-                _invaderShots.AddRange(visibleInvaderShotsList);
-    
-                foreach (Shot shot in _invaderShots)
-                {
-                    OnShotMoved(shot, false);
-                }
-    
-                foreach (Shot shot in disappearedInvaderShots)
-                {
-                    OnShotMoved(shot, true);
-                }
-    
-                foreach (Shot shot in _playerShots)
-                {
-                    shot.Move();
-                }
-
-                IEnumerable<Shot> visiblePlayerShots = from shot in _playerShots
-                    where shot.Location.Y > 0 
-                    select shot;
-
-                List<Shot> visiblePlayerShotsList = visiblePlayerShots.ToList();
-                List<Shot> disappearedPlayerShots = _playerShots.Except(visiblePlayerShotsList).ToList();
-    
-                _playerShots.Clear();
-                _playerShots.AddRange(visiblePlayerShotsList);
-    
-                foreach (Shot shot in _playerShots)
-                {
-                    OnShotMoved(shot, false);
-                }
-    
-                foreach (Shot shot in disappearedPlayerShots)
-                {
-                    OnShotMoved(shot, true);
-                }
-            }
-
             void ReturnFire()
             {
                 if (!InvadersCanShoot())
@@ -299,9 +228,17 @@ namespace Invaders.Model
                 }
 
                 Invader shootingInvader = DetermineShootingInvader();
-                Point shotLocation = GetShotStartLocation(shootingInvader);
-                Shot newShot = new Shot(shotLocation, Direction.Down);
-                _invaderShots.Add(newShot);
+                _shotManager.AddShot(shootingInvader);
+                
+                bool InvadersCanShoot()
+                {
+                    if (_shotManager.InvaderShotsCount >= Wave + 1 || _random.Next(30) < 30 - Wave)
+                    {
+                        return false;
+                    }
+
+                    return true;
+                }
 
                 Invader DetermineShootingInvader()
                 {
@@ -314,36 +251,18 @@ namespace Invaders.Model
                     Invader shooter = randomColumn.ToList().First();
                     return shooter;
                 }
-
-                bool InvadersCanShoot()
-                {
-                    if (_invaderShots.Count >= Wave + 1 || _random.Next(30) < 30 - Wave)
-                    {
-                        return false;
-                    }
-
-                    return true;
-                }
-                
-                Point GetShotStartLocation(Invader shooter)
-                {
-                    int shotX = shooter.Location.X + shooter.Size.Width / 2;
-                    int shotY = shooter.Location.Y + shooter.Size.Width + 1;
-                    return new Point(shotX, shotY);
-                }
             }
 
             void DestroyHitInvaders()
             {
-                List<Shot> playerShotsCopy = new List<Shot>(_playerShots);
+                List<Shot> playerShotsCopy = new List<Shot>(_shotManager.PlayerShots);
                 List<Invader> invadersCopy = new List<Invader>(_invaders);
                 foreach (Shot shot in playerShotsCopy)
                 {
                     foreach (Invader invader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
                     {
-                        _playerShots.Remove(shot);
-                        OnShotMoved(shot, true);
-                        
+                        _shotManager.RemoveShot(shot);
+
                         _invaders.Remove(invader);
                         invader.ShipStatus = ShipStatus.Killed;
                         OnShipChanged(invader);
@@ -354,11 +273,10 @@ namespace Invaders.Model
 
             void DestroyHitPlayer()
             {
-                List<Shot> invaderShotsCopy = new List<Shot>(_invaderShots);
+                List<Shot> invaderShotsCopy = new List<Shot>(_shotManager.InvaderShots);
                 foreach (Shot shot in invaderShotsCopy.Where(shot => RectsOverlap(shot.Area, _player.Area)))
                 {
-                    _invaderShots.Remove(shot);
-                    OnShotMoved(shot, true);
+                    _shotManager.RemoveShot(shot);
                     _playerDied = DateTime.Now;
                     Lives--;
                     _player.ShipStatus = PlayerStatus;
@@ -408,14 +326,7 @@ namespace Invaders.Model
             }
 
             _starManager.UpdateAllStars();
-            
-            List<Shot> allShots = new List<Shot>();
-            allShots.AddRange(_playerShots);
-            allShots.AddRange(_invaderShots);
-            foreach (Shot shot in allShots)
-            {
-                OnShotMoved(shot, false);
-            }
+            _shotManager.UpdateAllShots();
         }
 
         private bool CheckMothershipReachedBorder()
@@ -575,7 +486,6 @@ namespace Invaders.Model
         }
 
         public event EventHandler<ShipChangedEventArgs> ShipChanged;
-
         private void OnShipChanged(Ship ship)
         {
             ShipChangedEventArgs e = new ShipChangedEventArgs(ship);
@@ -583,7 +493,6 @@ namespace Invaders.Model
         }
 
         public event EventHandler<ShotMovedEventArgs> ShotMoved;
-
         private void OnShotMoved(Shot shot, bool disappeared)
         {
             ShotMovedEventArgs e = new ShotMovedEventArgs(shot, disappeared);
