@@ -26,17 +26,12 @@ namespace Invaders.Model
         public override void Move(Direction direction)
         {
             Point oldLocation = Location;
-            switch (direction)
+            Location = direction switch
             {
-                case Direction.Left:
-                    Location = new Point(oldLocation.X - Speed, oldLocation.Y);
-                    break;
-                case Direction.Right:
-                    Location = new Point(oldLocation.X + Speed, oldLocation.Y);
-                    break;
-                default:
-                    throw new NotImplementedException($"Moving {GetType()} {direction} is not implemented.");
-            }
+                Direction.Left => new Point(oldLocation.X - Speed, oldLocation.Y),
+                Direction.Right => new Point(oldLocation.X + Speed, oldLocation.Y),
+                _ => throw new ArgumentOutOfRangeException(nameof(direction), $"Invalid direction '{direction}' for '{GetType()}'."),
+            };
         }
 
         public void ChargeBattery()

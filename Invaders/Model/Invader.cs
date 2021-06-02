@@ -37,7 +37,7 @@ namespace Invaders.Model
                     Score = 250;
                     break;
                 default:
-                    throw new NotImplementedException($"Invader type '{type}' is not implemented.");
+                    throw new ArgumentOutOfRangeException(nameof(type), $"Unexpected invader type: {type}.");
             }
         }
 
@@ -56,7 +56,7 @@ namespace Invaders.Model
                     Location = new Point(oldLocation.X, oldLocation.Y + InvaderSize.Height);
                     break;
                 default:
-                    throw new NotImplementedException($"Moving invader type '{Type}' in direction '{direction}' is not implemented.");
+                    throw new ArgumentOutOfRangeException(nameof(direction), $"Unexpected direction '{direction}' for invader type '{Type}'.");
             }
         }
     }

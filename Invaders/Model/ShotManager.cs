@@ -57,7 +57,7 @@ namespace Invaders.Model
             {
                 Player => Direction.Up,
                 Invader => Direction.Down,
-                _ => throw new ArgumentOutOfRangeException(nameof(shooter), $"Unexpected shooter type: {shooter.GetType()}"),
+                _ => throw new ArgumentOutOfRangeException(nameof(shooter), $"Unexpected shooter type: {shooter.GetType()}."),
             };
             Shot newShot = new(shotLocation, shotDirection);
 
@@ -146,7 +146,7 @@ namespace Invaders.Model
             {
                 Player => shooter.Location.Y - Shot.ShotSize.Height - 1,
                 Invader => shooter.Location.Y + Shot.ShotSize.Height + 1,
-                _ => throw new ArgumentOutOfRangeException(nameof(shooter), $"Unexpected shooter type: {shooter.GetType()}"),
+                _ => throw new ArgumentOutOfRangeException(nameof(shooter), $"Unexpected shooter type: {shooter.GetType()}."),
             };
             return new Point(shotX, shotY);
         }

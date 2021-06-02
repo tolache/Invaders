@@ -434,7 +434,8 @@ namespace Invaders.Model
                     case (4, 6):
                         return (InvaderType) 4;
                     default:
-                        throw new NotImplementedException($"Failed to determine invader type for wave {wave} and row {row}.");
+                        throw new ArgumentOutOfRangeException(nameof(row) + ", " + nameof(wave),
+                            $"Failed to determine invader type for wave '{wave}' and row '{row}'.");
                 }
             }
         }

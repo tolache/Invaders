@@ -176,7 +176,6 @@ namespace Invaders.ViewModel
         public void Tapped()
         {
             _model.FireShot();
-            // TODO: don't fire a shot when Start button is tapped
         }
         
         public event PropertyChangedEventHandler? PropertyChanged;
