@@ -73,8 +73,7 @@ namespace Invaders.Model
 
             _starManager.RecreateStars();
 
-            _player = new Player(GetPlayerStartLocation(), Player.PlayerSize);
-            _player.ShipStatus = ShipStatus.AliveNormal;
+            _player = new Player(GetPlayerStartLocation(), Player.PlayerSize) {ShipStatus = ShipStatus.AliveNormal};
             OnShipChanged(_player);
             Lives = 2;
             Wave = 0;
@@ -85,35 +84,6 @@ namespace Invaders.Model
                 int playerStartingLocationX = (PlayAreaSize.Width + Player.PlayerSize.Width) / 2;
                 int playerStartingLocationY = PlayAreaSize.Height - Convert.ToInt32(Player.PlayerSize.Height * 1.3);
                 return new Point(playerStartingLocationX, playerStartingLocationY);
-            }
-        }
-
-        public void FireShot()
-        {
-            if (GameOver || GamePaused || PlayerFrozen || !_player.HasBatteryCharge) return;
-            _shotManager.AddShot(_player);
-            _player.DrainBattery();
-        }
-
-        public void MovePlayer(Direction direction)
-        {
-            if (PlayerFrozen) return;
-            if (PlayerReachedBoundary()) return;
-
-            _player.Move(direction);
-            _player.ShipStatus = PlayerStatus;
-            OnShipChanged(_player);
-
-            bool PlayerReachedBoundary()
-            {
-                switch (direction)
-                {
-                    case Direction.Left when _player.Location.X < Player.Speed:
-                    case Direction.Right when _player.Location.X > PlayAreaSize.Width - _player.Size.Width - Player.Speed:
-                        return true;
-                    default:
-                        return false;
-                }
             }
         }
 
@@ -310,6 +280,35 @@ namespace Invaders.Model
             }
         }
 
+        public void FireShot()
+        {
+            if (GameOver || GamePaused || PlayerFrozen || !_player.HasBatteryCharge) return;
+            _shotManager.AddShot(_player);
+            _player.DrainBattery();
+        }
+
+        public void MovePlayer(Direction direction)
+        {
+            if (PlayerFrozen) return;
+            if (PlayerReachedBoundary()) return;
+
+            _player.Move(direction);
+            _player.ShipStatus = PlayerStatus;
+            OnShipChanged(_player);
+
+            bool PlayerReachedBoundary()
+            {
+                switch (direction)
+                {
+                    case Direction.Left when _player.Location.X < Player.Speed:
+                    case Direction.Right when _player.Location.X > PlayAreaSize.Width - _player.Size.Width - Player.Speed:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
         public void UpdateAllShipsAndStars()
         {
             if (_player != null)
@@ -380,63 +379,35 @@ namespace Invaders.Model
 
             InvaderType GetInvaderType(int wave, int row)
             {
-                switch (wave, row)
+                return (wave, row) switch
                 {
-                    case(1, 1):
-                        return (InvaderType) 0;
-                    case (1, 2):
-                        return (InvaderType) 0;
-                    case (1, 3):
-                        return (InvaderType) 1;
-                    case (1, 4):
-                        return (InvaderType) 1;
-                    case (1, 5):
-                        return (InvaderType) 2;
-                    case (1, 6):
-                        return (InvaderType) 3;
-                
-                    case(2, 1):
-                        return (InvaderType) 0;
-                    case (2, 2):
-                        return (InvaderType) 1;
-                    case (2, 3):
-                        return (InvaderType) 1;
-                    case (2, 4):
-                        return (InvaderType) 1;
-                    case (2, 5):
-                        return (InvaderType) 2;
-                    case (2, 6):
-                        return (InvaderType) 3;
-                
-                    case(3, 1):
-                        return (InvaderType) 5;
-                    case (3, 2):
-                        return (InvaderType) 1;
-                    case (3, 3):
-                        return (InvaderType) 2;
-                    case (3, 4):
-                        return (InvaderType) 2;
-                    case (3, 5):
-                        return (InvaderType) 3;
-                    case (3, 6):
-                        return (InvaderType) 3;
-                    
-                    case(4, 1):
-                        return (InvaderType) 5;
-                    case (4, 2):
-                        return (InvaderType) 5;
-                    case (4, 3):
-                        return (InvaderType) 2;
-                    case (4, 4):
-                        return (InvaderType) 3;
-                    case (4, 5):
-                        return (InvaderType) 3;
-                    case (4, 6):
-                        return (InvaderType) 4;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(row) + ", " + nameof(wave),
-                            $"Failed to determine invader type for wave '{wave}' and row '{row}'.");
-                }
+                    (1, 1) => (InvaderType) 0,
+                    (1, 2) => (InvaderType) 0,
+                    (1, 3) => (InvaderType) 1,
+                    (1, 4) => (InvaderType) 1,
+                    (1, 5) => (InvaderType) 2,
+                    (1, 6) => (InvaderType) 3,
+                    (2, 1) => (InvaderType) 0,
+                    (2, 2) => (InvaderType) 1,
+                    (2, 3) => (InvaderType) 1,
+                    (2, 4) => (InvaderType) 1,
+                    (2, 5) => (InvaderType) 2,
+                    (2, 6) => (InvaderType) 3,
+                    (3, 1) => (InvaderType) 5,
+                    (3, 2) => (InvaderType) 1,
+                    (3, 3) => (InvaderType) 2,
+                    (3, 4) => (InvaderType) 2,
+                    (3, 5) => (InvaderType) 3,
+                    (3, 6) => (InvaderType) 3,
+                    (4, 1) => (InvaderType) 5,
+                    (4, 2) => (InvaderType) 5,
+                    (4, 3) => (InvaderType) 2,
+                    (4, 4) => (InvaderType) 3,
+                    (4, 5) => (InvaderType) 3,
+                    (4, 6) => (InvaderType) 4,
+                    _ => throw new ArgumentOutOfRangeException(nameof(row) + ", " + nameof(wave),
+                        $"Failed to determine invader type for wave '{wave}' and row '{row}'.")
+                };
             }
         }
 
