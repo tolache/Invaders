@@ -3,21 +3,16 @@ using System.Drawing;
 
 namespace Invaders.Model
 {
-    public class Shot
+    public class Shot : AreaOccupier
     {
-        public const double Speed = 95;
-
-        public static Size ShotSize = new Size(2, 10);
-        public Point Location { get; private set; }
-        public Rectangle Area => new Rectangle(Location, ShotSize);
-
-        public Direction Direction { get; private set; }
-        
+        private const double Speed = 95;
         private DateTime _lastMoved;
 
-        public Shot(Point location, Direction direction)
+        public static Size ShotSize = new(2, 10);
+        public Direction Direction { get; }
+
+        public Shot(Point location, Direction direction) : base(location, ShotSize)
         {
-            Location = location;
             Direction = direction;
             _lastMoved = DateTime.Now;
         }

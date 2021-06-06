@@ -50,7 +50,7 @@ namespace Invaders.Model
             }
         }
 
-        public void AddShot(Ship shooter)
+        public void AddShot(AreaOccupier shooter)
         {
             Point shotLocation = GetShotStartLocation(shooter);
             Direction shotDirection = shooter switch
@@ -73,7 +73,7 @@ namespace Invaders.Model
             _onShotMoved(newShot, false);
         }
 
-        public void RemoveShot(Shot shot)
+        public void RemoveShots(Shot shot)
         {
             if (shot.Direction == Direction.Up)
             {
@@ -86,6 +86,14 @@ namespace Invaders.Model
             _onShotMoved(shot, true);
         }
 
+        public void RemoveShots(IEnumerable<Shot> shots)
+        {
+            foreach (Shot shot in shots)
+            {
+                RemoveShots(shot);
+            }
+        }
+
         public void MoveShots()
         {
             foreach (Shot invaderShot in _invaderShots)
@@ -94,7 +102,7 @@ namespace Invaders.Model
             }
     
             IEnumerable<Shot> visibleInvaderShots = from shot in _invaderShots
-                where shot.Location.Y + Shot.ShotSize.Height < InvadersModel.PlayAreaSize.Height
+                where shot.Location.Y + shot.Size.Height < InvadersModel.PlayAreaSize.Height
                 select shot;
 
             List<Shot> visibleInvaderShotsList = visibleInvaderShots.ToList();
@@ -139,7 +147,7 @@ namespace Invaders.Model
             }
         }
 
-        private Point GetShotStartLocation(Ship shooter)
+        private Point GetShotStartLocation(AreaOccupier shooter)
         {
             int shotX = shooter.Location.X + shooter.Size.Width / 2;
             int shotY = shooter switch

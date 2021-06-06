@@ -10,8 +10,7 @@ namespace Invaders.Model
     public sealed class InvadersModel
     {
         private const int TotalWaves = 4;
-        private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
-        private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
+        private readonly PlayerManager _playerManager;
         private readonly StarManager _starManager;
         private readonly ShotManager _shotManager;
         private readonly Random _random = new();
@@ -25,12 +24,6 @@ namespace Invaders.Model
         public bool Victory { get; private set; }
         
         private bool GamePaused { get; set; }
-        private DateTime? _playerDied;
-        private ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
-        private bool PlayerFrozen => PlayerStatus == ShipStatus.Killed &&
-                                     DateTime.Now - _playerDied < _playerFreezeDuration;
-
-        private Player _player;
 
         private readonly List<Invader> _invaders = new();
 
@@ -45,6 +38,7 @@ namespace Invaders.Model
 
         public InvadersModel()
         {
+            _playerManager = new PlayerManager(OnShipChanged);
             _starManager = new StarManager(OnStarChanged);
             _shotManager = new ShotManager(OnShotMoved);
             EndGame();
@@ -62,6 +56,7 @@ namespace Invaders.Model
             Victory = false;
             _mothershipCreationAttempted = false;
             Score = 0;
+            
             foreach (Invader invader in _invaders)
             {
                 invader.ShipStatus = ShipStatus.Killed;
@@ -70,21 +65,13 @@ namespace Invaders.Model
             _invaders.Clear();
             
             _shotManager.ClearAllShots();
-
             _starManager.RecreateStars();
 
-            _player = new Player(GetPlayerStartLocation(), Player.PlayerSize) {ShipStatus = ShipStatus.AliveNormal};
-            OnShipChanged(_player);
+            _playerManager.CreatePlayer();
+
             Lives = 2;
             Wave = 0;
             NextWave();
-
-            Point GetPlayerStartLocation()
-            {
-                int playerStartingLocationX = (PlayAreaSize.Width + Player.PlayerSize.Width) / 2;
-                int playerStartingLocationY = PlayAreaSize.Height - Convert.ToInt32(Player.PlayerSize.Height * 1.3);
-                return new Point(playerStartingLocationX, playerStartingLocationY);
-            }
         }
 
         public void Update(bool paused)
@@ -106,10 +93,7 @@ namespace Invaders.Model
                 NextWave();
             }
 
-            if (DateTime.Now - _playerDied > _playerInvincibilityDuration)
-            {
-                _playerDied = null;
-            }
+            _playerManager.TryClearPlayerDiedStatus();
             
             if (!_mothershipCreationAttempted && CheckCanCreateMothership())
             {
@@ -121,74 +105,15 @@ namespace Invaders.Model
             _shotManager.MoveShots();
             ReturnFire();
             DestroyHitInvaders();
-            if (PlayerStatus == ShipStatus.AliveNormal)
+
+            List<Shot> shotsHittingPlayer = GetShotsHittingPlayer();
+            if (shotsHittingPlayer.Any())
             {
-                DestroyHitPlayer();
+                _shotManager.RemoveShots(shotsHittingPlayer);
+                HitPlayer();
             }
             UpdateAllShipsAndStars();
             CheckInvadersReachedBottom();
-
-            void MoveInvaders()
-            {
-                TimeSpan updateInterval = TimeSpan.FromMilliseconds(500);
-                if (DateTime.Now - _lastUpdated < updateInterval)
-                {
-                    return;
-                }
-                
-                _justMovedDown = false;
-
-                IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
-                    where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 2 && invader.Type != InvaderType.Mothership
-                    select invader;
-                if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
-                {
-                    foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                    {
-                        invader.Move(Direction.Down);
-                    }
-                    _justMovedDown = true;
-                    _invaderDirection = Direction.Left;
-                }
-                
-                IEnumerable<Invader> invadersCloseToLeftBoundary = from invader in _invaders
-                    where invader.Location.X < invader.Size.Width && invader.Type != InvaderType.Mothership
-                    select invader;
-                if (invadersCloseToLeftBoundary.Any() && _invaderDirection == Direction.Left)
-                {
-                    foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                    {
-                        invader.Move(Direction.Down);
-                    }
-                    _justMovedDown = true;
-                    _invaderDirection = Direction.Right;
-                }
-
-                if (!_justMovedDown)
-                {
-                    foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                    {
-                        invader.Move(_invaderDirection);
-                    }
-                }
-
-                if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
-                {
-                    Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
-                    if (CheckMothershipReachedBorder())
-                    {
-                        _invaders.Remove(mothership);
-                        mothership.ShipStatus = ShipStatus.OffScreen;
-                        OnShipChanged(mothership);
-                    }
-                    else
-                    {
-                        mothership.Move(_mothershipDirection);
-                    }
-                }
-
-                _lastUpdated = DateTime.Now;
-            }
 
             void ReturnFire()
             {
@@ -231,7 +156,7 @@ namespace Invaders.Model
                 {
                     foreach (Invader invader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
                     {
-                        _shotManager.RemoveShot(shot);
+                        _shotManager.RemoveShots(shot);
 
                         _invaders.Remove(invader);
                         invader.ShipStatus = ShipStatus.Killed;
@@ -240,83 +165,57 @@ namespace Invaders.Model
                     }
                 }
             }
-
-            void DestroyHitPlayer()
+            
+            List<Shot> GetShotsHittingPlayer()
             {
+                List<Shot> result = new();
                 List<Shot> invaderShotsCopy = new List<Shot>(_shotManager.InvaderShots);
-                foreach (Shot shot in invaderShotsCopy.Where(shot => RectsOverlap(shot.Area, _player.Area)))
+                foreach (Shot shot in invaderShotsCopy.Where(shot => RectsOverlap(shot.Area, _playerManager.Player.Area)))
                 {
-                    _shotManager.RemoveShot(shot);
-                    _playerDied = DateTime.Now;
-                    Lives--;
-                    _player.ShipStatus = PlayerStatus;
-                    OnShipChanged(_player);
-                    if (Lives < 0)
-                    {
-                        EndGame();
-                    }
+                    result.Add(shot);
                 }
+                
+                return result;
             }
 
             void CheckInvadersReachedBottom()
             {
                 var invadersReachedBottom = from invader in _invaders
-                    where invader.Location.Y >= _player.Location.Y - _verticalInvaderSpacing
+                    where invader.Location.Y >= _playerManager.GetPlayerStartLocation().Y - _verticalInvaderSpacing
                     select invader;
                 if (invadersReachedBottom.Any())
                 {
                     EndGame();
                 }
             }
+        }
+        
+        private bool RectsOverlap(Rectangle r1, Rectangle r2)
+        {
+            return r1.IntersectsWith(r2);
+        }
 
-            bool RectsOverlap(Rectangle r1, Rectangle r2)
+        private void HitPlayer()
+        {
+            if (_playerManager.PlayerStatus != ShipStatus.AliveNormal) return;
+            _playerManager.DamagePlayer();
+            Lives--;
+            if (Lives < 0)
             {
-                if (r1.IntersectsWith(r2))
-                {
-                    return true;
-                }
-
-                return false;
+                EndGame();
             }
         }
 
         public void FireShot()
         {
-            if (GameOver || GamePaused || PlayerFrozen || !_player.HasBatteryCharge) return;
-            _shotManager.AddShot(_player);
-            _player.DrainBattery();
-        }
-
-        public void MovePlayer(Direction direction)
-        {
-            if (PlayerFrozen) return;
-            if (PlayerReachedBoundary()) return;
-
-            _player.Move(direction);
-            _player.ShipStatus = PlayerStatus;
-            OnShipChanged(_player);
-
-            bool PlayerReachedBoundary()
-            {
-                switch (direction)
-                {
-                    case Direction.Left when _player.Location.X < Player.Speed:
-                    case Direction.Right when _player.Location.X > PlayAreaSize.Width - _player.Size.Width - Player.Speed:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
+            if (GameOver || GamePaused || !_playerManager.CheckCanPlayerShoot()) return;
+            _playerManager.DrainPlayerBattery();
+            _shotManager.AddShot(_playerManager.Player);
         }
 
         public void UpdateAllShipsAndStars()
         {
-            if (_player != null)
-            {
-                _player.ChargeBattery();
-                _player.ShipStatus = PlayerStatus;
-                OnShipChanged(_player);
-            }
+            _playerManager.UpdatePlayerShip();
 
             foreach (Invader invader in _invaders)
             {
@@ -326,6 +225,73 @@ namespace Invaders.Model
 
             _starManager.UpdateAllStars();
             _shotManager.UpdateAllShots();
+        }
+
+        public void MovePlayer(Direction direction)
+        {
+            _playerManager.MovePlayer(direction);
+        }
+
+        private void MoveInvaders()
+        {
+            TimeSpan updateInterval = TimeSpan.FromMilliseconds(500);
+            if (DateTime.Now - _lastUpdated < updateInterval)
+            {
+                return;
+            }
+                
+            _justMovedDown = false;
+
+            IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
+                where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 2 && invader.Type != InvaderType.Mothership
+                select invader;
+            if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
+            {
+                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
+                {
+                    invader.Move(Direction.Down);
+                }
+                _justMovedDown = true;
+                _invaderDirection = Direction.Left;
+            }
+                
+            IEnumerable<Invader> invadersCloseToLeftBoundary = from invader in _invaders
+                where invader.Location.X < invader.Size.Width && invader.Type != InvaderType.Mothership
+                select invader;
+            if (invadersCloseToLeftBoundary.Any() && _invaderDirection == Direction.Left)
+            {
+                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
+                {
+                    invader.Move(Direction.Down);
+                }
+                _justMovedDown = true;
+                _invaderDirection = Direction.Right;
+            }
+
+            if (!_justMovedDown)
+            {
+                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
+                {
+                    invader.Move(_invaderDirection);
+                }
+            }
+
+            if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
+            {
+                Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
+                if (CheckMothershipReachedBorder())
+                {
+                    _invaders.Remove(mothership);
+                    mothership.ShipStatus = ShipStatus.OffScreen;
+                    OnShipChanged(mothership);
+                }
+                else
+                {
+                    mothership.Move(_mothershipDirection);
+                }
+            }
+
+            _lastUpdated = DateTime.Now;
         }
 
         private bool CheckMothershipReachedBorder()
