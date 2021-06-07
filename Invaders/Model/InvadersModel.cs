@@ -11,34 +11,26 @@ namespace Invaders.Model
     {
         private const int TotalWaves = 4;
         private readonly PlayerManager _playerManager;
+        private readonly InvaderManager _invaderManager;
         private readonly StarManager _starManager;
         private readonly ShotManager _shotManager;
         private readonly Random _random = new();
-
+        private bool _mothershipCreationAttempted;
+        
         public static readonly Size PlayAreaSize = new(400, 300);
         public int Score { get; private set; }
         public int Wave { get; private set; }
         public int Lives { get; private set; }
-
         public bool GameOver { get; private set; }
         public bool Victory { get; private set; }
         
         private bool GamePaused { get; set; }
 
-        private readonly List<Invader> _invaders = new();
-
-        private Direction _invaderDirection = Direction.Right;
-        private Direction _mothershipDirection = Direction.Right;
-        private bool _justMovedDown;
-        private DateTime _lastUpdated = DateTime.MinValue;
-
-        private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
-        private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);
-        private bool _mothershipCreationAttempted;
 
         public InvadersModel()
         {
             _playerManager = new PlayerManager(OnShipChanged);
+            _invaderManager = new InvaderManager(OnShipChanged);
             _starManager = new StarManager(OnStarChanged);
             _shotManager = new ShotManager(OnShotMoved);
             EndGame();
@@ -57,13 +49,8 @@ namespace Invaders.Model
             _mothershipCreationAttempted = false;
             Score = 0;
             
-            foreach (Invader invader in _invaders)
-            {
-                invader.ShipStatus = ShipStatus.Killed;
-                OnShipChanged(invader);
-            }
-            _invaders.Clear();
-            
+            _invaderManager.KillAllInvaders();
+
             _shotManager.ClearAllShots();
             _starManager.RecreateStars();
 
@@ -88,20 +75,20 @@ namespace Invaders.Model
                 EndGame(true);
                 return;
             }
-            if (_invaders.Count == 0)
+            if (_invaderManager.Invaders.Count == 0)
             {
                 NextWave();
             }
 
             _playerManager.TryClearPlayerDiedStatus();
             
-            if (!_mothershipCreationAttempted && CheckCanCreateMothership())
+            if (!_mothershipCreationAttempted && _invaderManager.CheckCanCreateMothership())
             {
-                if (_random.Next(0,3) == 2) CreateMothership();
+                if (_random.Next(0,3) == 2) _invaderManager.CreateMothership();
                 _mothershipCreationAttempted = true;
             }
 
-            MoveInvaders();
+            _invaderManager.MoveInvaders();
             _shotManager.MoveShots();
             ReturnFire();
             DestroyHitInvaders();
@@ -113,7 +100,10 @@ namespace Invaders.Model
                 HitPlayer();
             }
             UpdateAllShipsAndStars();
-            CheckInvadersReachedBottom();
+            if (_invaderManager.CheckInvadersReachedBottom(_playerManager.GetPlayerStartLocation().Y))
+            {
+                EndGame();
+            }
 
             void ReturnFire()
             {
@@ -122,7 +112,7 @@ namespace Invaders.Model
                     return;
                 }
 
-                Invader shootingInvader = DetermineShootingInvader();
+                AreaOccupier shootingInvader = _invaderManager.DetermineShootingInvader();
                 _shotManager.AddShot(shootingInvader);
                 
                 bool InvadersCanShoot()
@@ -131,37 +121,22 @@ namespace Invaders.Model
                     {
                         return false;
                     }
-
+                        
                     return true;
-                }
-
-                Invader DetermineShootingInvader()
-                {
-                    var invaderColumns = from invader in _invaders
-                        group invader by invader.Location.X
-                        into invaderColumn
-                        select invaderColumn;
-                    var invaderColumnsList = invaderColumns.ToList();
-                    IGrouping<int, Invader> randomColumn = invaderColumnsList.ElementAt(_random.Next(invaderColumnsList.Count()));
-                    Invader shooter = randomColumn.ToList().First();
-                    return shooter;
                 }
             }
 
             void DestroyHitInvaders()
             {
                 List<Shot> playerShotsCopy = new List<Shot>(_shotManager.PlayerShots);
-                List<Invader> invadersCopy = new List<Invader>(_invaders);
+                List<AreaOccupier> invadersCopy = new List<AreaOccupier>(_invaderManager.Invaders);
                 foreach (Shot shot in playerShotsCopy)
                 {
-                    foreach (Invader invader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
+                    foreach (AreaOccupier areaOccupierInvader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
                     {
                         _shotManager.RemoveShots(shot);
-
-                        _invaders.Remove(invader);
-                        invader.ShipStatus = ShipStatus.Killed;
-                        OnShipChanged(invader);
-                        Score += invader.Score;
+                        _invaderManager.RemoveInvader(areaOccupierInvader as Invader);
+                        if (areaOccupierInvader is Invader invader) Score += invader.Score;
                     }
                 }
             }
@@ -176,17 +151,6 @@ namespace Invaders.Model
                 }
                 
                 return result;
-            }
-
-            void CheckInvadersReachedBottom()
-            {
-                var invadersReachedBottom = from invader in _invaders
-                    where invader.Location.Y >= _playerManager.GetPlayerStartLocation().Y - _verticalInvaderSpacing
-                    select invader;
-                if (invadersReachedBottom.Any())
-                {
-                    EndGame();
-                }
             }
         }
         
@@ -216,13 +180,7 @@ namespace Invaders.Model
         public void UpdateAllShipsAndStars()
         {
             _playerManager.UpdatePlayerShip();
-
-            foreach (Invader invader in _invaders)
-            {
-                invader.ShipStatus = ShipStatus.AliveNormal;
-                OnShipChanged(invader);
-            }
-
+            _invaderManager.UpdateAllInvaderShips();
             _starManager.UpdateAllStars();
             _shotManager.UpdateAllShots();
         }
@@ -230,86 +188,6 @@ namespace Invaders.Model
         public void MovePlayer(Direction direction)
         {
             _playerManager.MovePlayer(direction);
-        }
-
-        private void MoveInvaders()
-        {
-            TimeSpan updateInterval = TimeSpan.FromMilliseconds(500);
-            if (DateTime.Now - _lastUpdated < updateInterval)
-            {
-                return;
-            }
-                
-            _justMovedDown = false;
-
-            IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
-                where invader.Location.X > PlayAreaSize.Width - invader.Size.Width * 2 && invader.Type != InvaderType.Mothership
-                select invader;
-            if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
-            {
-                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                {
-                    invader.Move(Direction.Down);
-                }
-                _justMovedDown = true;
-                _invaderDirection = Direction.Left;
-            }
-                
-            IEnumerable<Invader> invadersCloseToLeftBoundary = from invader in _invaders
-                where invader.Location.X < invader.Size.Width && invader.Type != InvaderType.Mothership
-                select invader;
-            if (invadersCloseToLeftBoundary.Any() && _invaderDirection == Direction.Left)
-            {
-                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                {
-                    invader.Move(Direction.Down);
-                }
-                _justMovedDown = true;
-                _invaderDirection = Direction.Right;
-            }
-
-            if (!_justMovedDown)
-            {
-                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                {
-                    invader.Move(_invaderDirection);
-                }
-            }
-
-            if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
-            {
-                Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
-                if (CheckMothershipReachedBorder())
-                {
-                    _invaders.Remove(mothership);
-                    mothership.ShipStatus = ShipStatus.OffScreen;
-                    OnShipChanged(mothership);
-                }
-                else
-                {
-                    mothership.Move(_mothershipDirection);
-                }
-            }
-
-            _lastUpdated = DateTime.Now;
-        }
-
-        private bool CheckMothershipReachedBorder()
-        {
-            if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
-            {
-                Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
-                if (_mothershipDirection == Direction.Right
-                    && mothership.Location.X >
-                    PlayAreaSize.Width - mothership.Size.Width - Invader.InvaderSize.Width / 2
-                    || _mothershipDirection == Direction.Left
-                    && mothership.Location.X < Invader.InvaderSize.Width / 2)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private void NextWave()
@@ -320,107 +198,8 @@ namespace Invaders.Model
             {
                 return;
             }
-            _invaders.Clear();
-
-            int invaderX = _horizontalInvaderSpacing;
-
-            for (int invaderColumn = 1; invaderColumn <= 11; invaderColumn++)
-            {
-                int invaderY = _verticalInvaderSpacing;
-                
-                Invader[] currentColumn = new Invader[6];
-                for (int row = 6; row >= 1; row--)
-                {
-                    Invader invader = new Invader(GetInvaderType(Wave, row), new Point(invaderX, invaderY), Invader.InvaderSize);
-                    currentColumn[row - 1] = invader;
-                    
-                    invaderY += Invader.InvaderSize.Height + _verticalInvaderSpacing;
-                }
-                _invaders.AddRange(currentColumn);
-                
-                invaderX += Invader.InvaderSize.Width + _horizontalInvaderSpacing;
-            }
-
-            return;
-
-            InvaderType GetInvaderType(int wave, int row)
-            {
-                return (wave, row) switch
-                {
-                    (1, 1) => (InvaderType) 0,
-                    (1, 2) => (InvaderType) 0,
-                    (1, 3) => (InvaderType) 1,
-                    (1, 4) => (InvaderType) 1,
-                    (1, 5) => (InvaderType) 2,
-                    (1, 6) => (InvaderType) 3,
-                    (2, 1) => (InvaderType) 0,
-                    (2, 2) => (InvaderType) 1,
-                    (2, 3) => (InvaderType) 1,
-                    (2, 4) => (InvaderType) 1,
-                    (2, 5) => (InvaderType) 2,
-                    (2, 6) => (InvaderType) 3,
-                    (3, 1) => (InvaderType) 5,
-                    (3, 2) => (InvaderType) 1,
-                    (3, 3) => (InvaderType) 2,
-                    (3, 4) => (InvaderType) 2,
-                    (3, 5) => (InvaderType) 3,
-                    (3, 6) => (InvaderType) 3,
-                    (4, 1) => (InvaderType) 5,
-                    (4, 2) => (InvaderType) 5,
-                    (4, 3) => (InvaderType) 2,
-                    (4, 4) => (InvaderType) 3,
-                    (4, 5) => (InvaderType) 3,
-                    (4, 6) => (InvaderType) 4,
-                    _ => throw new ArgumentOutOfRangeException(nameof(row) + ", " + nameof(wave),
-                        $"Failed to determine invader type for wave '{wave}' and row '{row}'.")
-                };
-            }
-        }
-
-        private bool CheckCanCreateMothership()
-        {
-            bool haveSpace = false;
-            bool halfInvadersDied = false;
-            int uppermostInvaderY = GetUppermostInvaderY();
-            if (uppermostInvaderY > Invader.MothershipSize.Height * 2)
-                haveSpace = true;
-            if (_invaders.Count <= 33)
-                halfInvadersDied = true;
-            
-            if (haveSpace && halfInvadersDied)
-            {
-                return true;
-            }
-        
-            return false;
-        }
-        
-        private int GetUppermostInvaderY()
-        {
-            int y = PlayAreaSize.Height;
-            foreach (Invader invader in _invaders)
-            {
-                if (invader.Location.Y < y)
-                {
-                    y = invader.Location.Y;
-                }
-            }
-            return y;
-        }
-        
-        private void CreateMothership()
-        {
-            Size size = new(Invader.MothershipSize.Width,Invader.MothershipSize.Height);
-            int startY = (GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
-            int startX = 0;
-            if (_random.Next(2) == 1)
-            {
-                startX = PlayAreaSize.Width - Invader.MothershipSize.Width;
-                _mothershipDirection = Direction.Left;
-            }
-            Point startLocation = new(startX, startY);
-            Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
-            _invaders.Add(mothership);
+            _invaderManager.KillAllInvaders();
+            _invaderManager.CreateInvaders(Wave);
         }
 
         public event EventHandler<ShipChangedEventArgs> ShipChanged;
