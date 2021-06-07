@@ -15,6 +15,7 @@ namespace Invaders.Model
 
         public PlayerManager(OnShipChangedDelegate onShipChanged) : base(onShipChanged)
         {
+            
         }
         
         public void CreatePlayer()
