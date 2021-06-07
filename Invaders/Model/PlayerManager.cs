@@ -3,28 +3,25 @@ using System.Drawing;
 
 namespace Invaders.Model
 {
-    public class PlayerManager
+    public class PlayerManager : ShipManager
     {
+        public AreaOccupier Player => _player;
+        public ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
+
+        private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
+        private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
         private Player _player;
         private DateTime? _playerDied;
 
-        public AreaOccupier Player => _player;
-        public ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
-        private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
-        private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
-        private readonly OnShipChanged _onShipChanged;
-
-        public delegate void OnShipChanged(Ship ship);
-        
-        public PlayerManager(OnShipChanged onShipChanged)
+        public PlayerManager(OnShipChangedDelegate onShipChanged) : base(onShipChanged)
         {
-            _onShipChanged = onShipChanged;
+            
         }
         
         public void CreatePlayer()
         {
             _player = new Player(GetPlayerStartLocation(), Model.Player.PlayerSize) {ShipStatus = ShipStatus.AliveNormal};
-            _onShipChanged(_player);
+            OnShipChanged(_player);
         }
 
         public void UpdatePlayerShip()
@@ -33,7 +30,7 @@ namespace Invaders.Model
             {
                 _player.ChargeBattery();
                 _player.ShipStatus = PlayerStatus;
-                _onShipChanged(_player);
+                OnShipChanged(_player);
             }
         }
         
@@ -41,7 +38,7 @@ namespace Invaders.Model
         {
             _playerDied = DateTime.Now;
             _player.ShipStatus = PlayerStatus;
-            _onShipChanged(_player);
+            OnShipChanged(_player);
         }
         
         public void TryClearPlayerDiedStatus()
@@ -65,7 +62,7 @@ namespace Invaders.Model
 
             _player.Move(direction);
             _player.ShipStatus = PlayerStatus;
-            _onShipChanged(_player);
+            OnShipChanged(_player);
         }
 
         public bool CheckCanPlayerShoot()
