@@ -78,20 +78,15 @@ namespace Invaders.Model
                 EndGame(true);
                 return;
             }
+            
             if (_invaderManager.Invaders.Count == 0)
             {
                 NextWave();
             }
 
             _playerManager.TryClearPlayerDiedStatus();
-            
-            if (!_mothershipCreationAttempted && _invaderManager.CheckCanCreateMothership())
-            {
-                if (_random.Next(0,3) == 2) _invaderManager.CreateMothership();
-                _mothershipCreationAttempted = true;
-            }
-
             _invaderManager.MoveInvaders();
+            TryCreateMothership();
             _shotManager.MoveShots();
             ReturnFire();
             DestroyHitInvaders();
@@ -159,6 +154,15 @@ namespace Invaders.Model
             }
         }
 
+        private void TryCreateMothership()
+        {
+            if (!_mothershipCreationAttempted && _invaderManager.CheckCanCreateMothership())
+            {
+                if (_random.Next(0, 3) == 2) _invaderManager.CreateMothership();
+                _mothershipCreationAttempted = true;
+            }
+        }
+
         private void DestroyHitInvaders()
         {
             List<Shot> playerShotsCopy = new List<Shot>(_shotManager.PlayerShots);
@@ -173,7 +177,7 @@ namespace Invaders.Model
                 }
             }
         }
-        
+
         private void ReturnFire()
         {
             if (!InvadersCanShoot())
@@ -206,7 +210,7 @@ namespace Invaders.Model
                 
             return result;
         }
-        
+
         private void OnShipChanged(Ship ship)
         {
             ShipChangedEventArgs e = new ShipChangedEventArgs(ship);
@@ -218,7 +222,7 @@ namespace Invaders.Model
             ShotMovedEventArgs e = new ShotMovedEventArgs(shot, disappeared);
             ShotMoved?.Invoke(this, e);
         }
-        
+
         private void OnStarChanged(Point location, bool disappeared)
         {
             StarChangedEventArgs e = new StarChangedEventArgs(location, disappeared);
