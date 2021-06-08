@@ -20,7 +20,7 @@ namespace Invaders.Model
         private bool _justMovedDown;
         private DateTime _lastUpdated = DateTime.MinValue;
 
-        public InvaderManager(Size playAreaSize, OnShipChangedDelegate onShipChanged) : base(onShipChanged)
+        public InvaderManager(Size playAreaSize, OnShipChangedCallback onShipChanged) : base(onShipChanged)
         {
             _playAreaSize = playAreaSize;
         }

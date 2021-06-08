@@ -15,15 +15,16 @@ namespace Invaders.Model
         private readonly List<Shot> _playerShots = new();
         private readonly List<Shot> _invaderShots = new();
         private readonly Size _playAreaSize;
-        private readonly OnShotMoved _onShotMoved;
 
-        public ShotManager(Size playAreaSize, OnShotMoved onShotMoved)
+        public ShotManager(Size playAreaSize, OnShotMovedCallback onShotMoved)
         {
             _onShotMoved = onShotMoved;
             _playAreaSize = playAreaSize;
         }
 
-        public delegate void OnShotMoved(Shot shot, bool disappeared);
+        private readonly OnShotMovedCallback _onShotMoved;
+
+        public delegate void OnShotMovedCallback(Shot shot, bool disappeared);
 
         public void ClearAllShots()
         {

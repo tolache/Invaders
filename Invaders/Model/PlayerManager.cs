@@ -14,7 +14,7 @@ namespace Invaders.Model
         private Player _player;
         private DateTime? _playerDied;
 
-        public PlayerManager(Size playAreaSize, OnShipChangedDelegate onShipChanged) : base(onShipChanged)
+        public PlayerManager(Size playAreaSize, OnShipChangedCallback onShipChanged) : base(onShipChanged)
         {
             _playAreaSize = playAreaSize;
         }

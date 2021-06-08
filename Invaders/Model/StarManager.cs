@@ -9,16 +9,16 @@ namespace Invaders.Model
         private const int InitialStarCount = 50;
         private readonly List<Point> _stars = new();
         private readonly Size _playAreaSize;
-        private readonly OnStarChanged _onStarChanged;
+        private readonly OnStarChangedCallback _onStarChanged;
         private readonly Random _random = new();
 
-        public StarManager(Size playAreaSize, OnStarChanged onStarChanged)
+        public StarManager(Size playAreaSize, OnStarChangedCallback onStarChanged)
         {
             _onStarChanged = onStarChanged;
             _playAreaSize = playAreaSize;
         }
 
-        public delegate void OnStarChanged(Point location, bool disappeared);
+        public delegate void OnStarChangedCallback(Point location, bool disappeared);
 
         public void RecreateStars()
         {

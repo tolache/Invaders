@@ -2,13 +2,13 @@
 {
     public abstract class ShipManager
     {
-        protected readonly OnShipChangedDelegate OnShipChanged;
+        protected readonly OnShipChangedCallback OnShipChanged;
 
-        protected ShipManager(OnShipChangedDelegate onShipChanged)
+        protected ShipManager(OnShipChangedCallback onShipChanged)
         {
             OnShipChanged = onShipChanged;
         }
 
-        public delegate void OnShipChangedDelegate(Ship ship);
+        public delegate void OnShipChangedCallback(Ship ship);
     }
 }
