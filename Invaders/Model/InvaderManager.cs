@@ -13,14 +13,16 @@ namespace Invaders.Model
         private readonly List<Invader> _invaders = new();
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
         private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);
+        private readonly Size _playAreaSize;
         private readonly Random _random = new();
         private Direction _invaderDirection = Direction.Right;
         private Direction _mothershipDirection = Direction.Right;
         private bool _justMovedDown;
         private DateTime _lastUpdated = DateTime.MinValue;
 
-        public InvaderManager(OnShipChangedDelegate onShipChanged) : base(onShipChanged)
+        public InvaderManager(Size playAreaSize, OnShipChangedDelegate onShipChanged) : base(onShipChanged)
         {
+            _playAreaSize = playAreaSize;
         }
 
         public void KillAllInvaders()
@@ -71,7 +73,7 @@ namespace Invaders.Model
             _justMovedDown = false;
 
             IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
-                where invader.Location.X > InvadersModel.PlayAreaSize.Width - invader.Size.Width * 2 && invader.Type != InvaderType.Mothership
+                where invader.Location.X > _playAreaSize.Width - invader.Size.Width * 2 && invader.Type != InvaderType.Mothership
                 select invader;
             if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
             {
@@ -191,7 +193,7 @@ namespace Invaders.Model
             int startX = 0;
             if (_random.Next(2) == 1)
             {
-                startX = InvadersModel.PlayAreaSize.Width - Invader.MothershipSize.Width;
+                startX = _playAreaSize.Width - Invader.MothershipSize.Width;
                 _mothershipDirection = Direction.Left;
             }
             Point startLocation = new(startX, startY);
@@ -201,7 +203,7 @@ namespace Invaders.Model
         
         private int GetUppermostInvaderY()
         {
-            int y = InvadersModel.PlayAreaSize.Height;
+            int y = _playAreaSize.Height;
             foreach (Invader invader in _invaders)
             {
                 if (invader.Location.Y < y)
@@ -252,7 +254,7 @@ namespace Invaders.Model
                 Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
                 if (_mothershipDirection == Direction.Right
                     && mothership.Location.X >
-                    InvadersModel.PlayAreaSize.Width - mothership.Size.Width - Invader.InvaderSize.Width / 2
+                    _playAreaSize.Width - mothership.Size.Width - Invader.InvaderSize.Width / 2
                     || _mothershipDirection == Direction.Left
                     && mothership.Location.X < Invader.InvaderSize.Width / 2)
                 {

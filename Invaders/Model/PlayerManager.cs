@@ -10,12 +10,13 @@ namespace Invaders.Model
 
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
+        private readonly Size _playAreaSize;
         private Player _player;
         private DateTime? _playerDied;
 
-        public PlayerManager(OnShipChangedDelegate onShipChanged) : base(onShipChanged)
+        public PlayerManager(Size playAreaSize, OnShipChangedDelegate onShipChanged) : base(onShipChanged)
         {
-            
+            _playAreaSize = playAreaSize;
         }
         
         public void CreatePlayer()
@@ -51,8 +52,8 @@ namespace Invaders.Model
         
         public Point GetPlayerStartLocation()
         {
-            int playerStartingLocationX = (InvadersModel.PlayAreaSize.Width + Model.Player.PlayerSize.Width) / 2;
-            int playerStartingLocationY = InvadersModel.PlayAreaSize.Height - Convert.ToInt32(Model.Player.PlayerSize.Height * 1.3);
+            int playerStartingLocationX = (_playAreaSize.Width + Model.Player.PlayerSize.Width) / 2;
+            int playerStartingLocationY = _playAreaSize.Height - Convert.ToInt32(Model.Player.PlayerSize.Height * 1.3);
             return new Point(playerStartingLocationX, playerStartingLocationY);
         }
 
@@ -84,7 +85,7 @@ namespace Invaders.Model
         private bool CheckPlayerReachedBoundary(Direction direction)
         {
             bool isPlayerNextToLeftBoundary = Player.Location.X < Model.Player.Speed;
-            bool isPlayerNextToRightBoundary = Player.Location.X > InvadersModel.PlayAreaSize.Width - Player.Size.Width - Model.Player.Speed;
+            bool isPlayerNextToRightBoundary = Player.Location.X > _playAreaSize.Width - Player.Size.Width - Model.Player.Speed;
             if (direction == Direction.Left && isPlayerNextToLeftBoundary ||
                 direction == Direction.Right && isPlayerNextToRightBoundary)
                 return true;

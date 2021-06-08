@@ -8,19 +8,22 @@ namespace Invaders.Model
 {
     public class ShotManager
     {
-        private readonly List<Shot> _playerShots = new();
-        private readonly List<Shot> _invaderShots = new();
-        private readonly OnShotMoved _onShotMoved;
-
         public ReadOnlyCollection<Shot> PlayerShots => _playerShots.AsReadOnly();
         public ReadOnlyCollection<Shot> InvaderShots => _invaderShots.AsReadOnly();
         public int InvaderShotsCount => _invaderShots.Count;
-        public delegate void OnShotMoved(Shot shot, bool disappeared);
+        
+        private readonly List<Shot> _playerShots = new();
+        private readonly List<Shot> _invaderShots = new();
+        private readonly Size _playAreaSize;
+        private readonly OnShotMoved _onShotMoved;
 
-        public ShotManager(OnShotMoved onShotMoved)
+        public ShotManager(Size playAreaSize, OnShotMoved onShotMoved)
         {
             _onShotMoved = onShotMoved;
+            _playAreaSize = playAreaSize;
         }
+
+        public delegate void OnShotMoved(Shot shot, bool disappeared);
 
         public void ClearAllShots()
         {
@@ -102,7 +105,7 @@ namespace Invaders.Model
             }
     
             IEnumerable<Shot> visibleInvaderShots = from shot in _invaderShots
-                where shot.Location.Y + shot.Size.Height < InvadersModel.PlayAreaSize.Height
+                where shot.Location.Y + shot.Size.Height < _playAreaSize.Height
                 select shot;
 
             List<Shot> visibleInvaderShotsList = visibleInvaderShots.ToList();

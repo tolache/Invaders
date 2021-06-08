@@ -4,11 +4,11 @@
     {
         protected readonly OnShipChangedDelegate OnShipChanged;
 
-        public delegate void OnShipChangedDelegate(Ship ship);
-
         protected ShipManager(OnShipChangedDelegate onShipChanged)
         {
             OnShipChanged = onShipChanged;
         }
+
+        public delegate void OnShipChangedDelegate(Ship ship);
     }
 }
