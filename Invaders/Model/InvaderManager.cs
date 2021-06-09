@@ -9,7 +9,8 @@ namespace Invaders.Model
     public class InvaderManager : ShipManager
     {
         public ReadOnlyCollection<AreaOccupier> Invaders => _invaders.ConvertAll(_ => (AreaOccupier)_).AsReadOnly();
-        
+
+        private const int MoveInvadersCooldownMs = 500;
         private readonly List<Invader> _invaders = new();
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
         private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);
@@ -64,7 +65,7 @@ namespace Invaders.Model
         
         public void MoveInvaders()
         {
-            TimeSpan updateInterval = TimeSpan.FromMilliseconds(500);
+            TimeSpan updateInterval = TimeSpan.FromMilliseconds(MoveInvadersCooldownMs);
             if (DateTime.Now - _lastUpdated < updateInterval)
             {
                 return;
