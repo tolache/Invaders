@@ -8,8 +8,6 @@ namespace Invaders.Model
 {
     public class InvaderManager : ShipManager
     {
-        public ReadOnlyCollection<AreaOccupier> Invaders => _invaders.ConvertAll(_ => (AreaOccupier)_).AsReadOnly();
-
         private const int MoveInvadersCooldownMs = 500;
         private readonly List<Invader> _invaders = new();
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
@@ -24,6 +22,11 @@ namespace Invaders.Model
         public InvaderManager(Size playAreaSize, OnShipChangedCallback onShipChanged) : base(onShipChanged)
         {
             _playAreaSize = playAreaSize;
+        }
+        
+        public ReadOnlyCollection<AreaOccupier> GetInvaders()
+        {
+            return _invaders.ConvertAll(_ => (AreaOccupier) _).AsReadOnly();
         }
 
         public void KillAllInvaders()

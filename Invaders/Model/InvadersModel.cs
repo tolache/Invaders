@@ -79,7 +79,7 @@ namespace Invaders.Model
                 return;
             }
             
-            if (_invaderManager.Invaders.Count == 0)
+            if (_invaderManager.GetInvaders().Count == 0)
             {
                 NextWave();
             }
@@ -166,7 +166,7 @@ namespace Invaders.Model
         private void DestroyHitInvaders()
         {
             List<Shot> playerShotsCopy = new List<Shot>(_shotManager.PlayerShots);
-            List<AreaOccupier> invadersCopy = new List<AreaOccupier>(_invaderManager.Invaders);
+            List<AreaOccupier> invadersCopy = new List<AreaOccupier>(_invaderManager.GetInvaders());
             foreach (Shot shot in playerShotsCopy)
             {
                 foreach (AreaOccupier areaOccupierInvader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
