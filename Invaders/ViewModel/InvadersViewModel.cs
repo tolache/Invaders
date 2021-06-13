@@ -39,23 +39,6 @@ namespace Invaders.ViewModel
             }
         }
 
-        private void RecreateScanLines()
-        {
-            foreach (FrameworkElement scanLine in _scanLines)
-            {
-                _sprites.Remove(scanLine);
-            }
-            _scanLines.Clear();
-
-            
-            for (int y = 2; y < 300; y += 4)
-            {
-                FrameworkElement scanLineToAdd = InvadersHelper.ScanLineFactory(y, Scale);
-                _scanLines.Add(scanLineToAdd);
-                _sprites.Add(scanLineToAdd);
-            }
-        }
-
         private readonly InvadersModel _model = new();
         private readonly DispatcherTimer _timer = new();
         private FrameworkElement _playerControl;
@@ -86,6 +69,8 @@ namespace Invaders.ViewModel
             
             EndGame();
         }
+        
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public void StartGame()
         {
@@ -177,12 +162,22 @@ namespace Invaders.ViewModel
         {
             _model.FireShot();
         }
-        
-        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private void OnPropertyChanged(string propertyName)
+        private void RecreateScanLines()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            foreach (FrameworkElement scanLine in _scanLines)
+            {
+                _sprites.Remove(scanLine);
+            }
+            _scanLines.Clear();
+
+            
+            for (int y = 2; y < 300; y += 4)
+            {
+                FrameworkElement scanLineToAdd = InvadersHelper.ScanLineFactory(y, Scale);
+                _scanLines.Add(scanLineToAdd);
+                _sprites.Add(scanLineToAdd);
+            }
         }
 
         private void OnModelShipChanged(object? sender, ShipChangedEventArgs e)
@@ -424,6 +419,11 @@ namespace Invaders.ViewModel
                     }
                 }
             }
+        }
+        
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
