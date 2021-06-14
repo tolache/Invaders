@@ -8,7 +8,7 @@ namespace Invaders.Model
 {
     public class InvaderManager : ShipManager
     {
-        private const int MoveInvadersCooldownMs = 500;
+        private const int MoveInvadersCooldownMs = 93;
         private readonly List<Invader> _invaders = new();
         private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
         private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);

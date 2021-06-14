@@ -5,9 +5,9 @@ namespace Invaders.Model
 {
     public class Player : Ship
     {
-        public const int Speed = 3;
         public static readonly Size PlayerSize = new(25,15);
 
+        private const int PlayerSpeed = 3;
         private const int BatterySize = 3;
         private const int BatteryChargeTimeMs = 400;
         private DateTime _batteryChargeChange;
@@ -18,6 +18,7 @@ namespace Invaders.Model
 
         public Player(Point location, Size size) : base(location, size)
         {
+            Speed = PlayerSpeed;
             CurrentBatteryCharge = BatterySize;
             _batteryChargeChange = DateTime.Now;
             _batteryChargeRate = TimeSpan.FromMilliseconds(BatteryChargeTimeMs);

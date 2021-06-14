@@ -5,6 +5,8 @@ namespace Invaders.Model
     public abstract class Ship : AreaOccupier
     {
         public ShipStatus ShipStatus;
+        
+        public int Speed { get; protected init; }
 
         protected Ship(Point location, Size size) : base(location, size)
         {

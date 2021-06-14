@@ -84,8 +84,8 @@ namespace Invaders.Model
 
         private bool CheckPlayerReachedBoundary(Direction direction)
         {
-            bool isPlayerNextToLeftBoundary = Player.Location.X < Model.Player.Speed;
-            bool isPlayerNextToRightBoundary = Player.Location.X > _playAreaSize.Width - Player.Size.Width - Model.Player.Speed;
+            bool isPlayerNextToLeftBoundary = Player.Location.X < _player.Speed;
+            bool isPlayerNextToRightBoundary = Player.Location.X > _playAreaSize.Width - Player.Size.Width - _player.Speed;
             if (direction == Direction.Left && isPlayerNextToLeftBoundary ||
                 direction == Direction.Right && isPlayerNextToRightBoundary)
                 return true;
