@@ -138,6 +138,11 @@ namespace Invaders.Model
                 OnShipChanged(invader);
             }
         }
+        
+        public bool InvadersCanShoot(int currentInvaderShots, int wave)
+        {
+            return currentInvaderShots < wave + 1 && _random.Next(30) >= 30 - wave;
+        }
 
         public AreaOccupier DetermineShootingInvader()
         {

@@ -170,23 +170,13 @@ namespace Invaders.Model
 
         private void ReturnFire()
         {
-            if (!InvadersCanShoot())
+            if (!_invaderManager.InvadersCanShoot(_shotManager.InvaderShotsCount, Wave))
             {
                 return;
             }
 
             AreaOccupier shootingInvader = _invaderManager.DetermineShootingInvader();
             _shotManager.AddShot(shootingInvader);
-                
-            bool InvadersCanShoot()
-            {
-                if (_shotManager.InvaderShotsCount >= Wave + 1 || _random.Next(30) < 30 - Wave)
-                {
-                    return false;
-                }
-                        
-                return true;
-            }
         }
 
         private List<Shot> GetShotsHittingPlayer()
