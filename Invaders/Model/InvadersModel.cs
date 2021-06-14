@@ -16,7 +16,6 @@ namespace Invaders.Model
         private readonly StarManager _starManager;
         private readonly ShotManager _shotManager;
         private readonly Random _random = new();
-        private bool _mothershipCreationAttempted;
 
         public int Score { get; private set; }
         public int Wave { get; private set; }
@@ -50,7 +49,7 @@ namespace Invaders.Model
         {
             GameOver = false;
             Victory = false;
-            _mothershipCreationAttempted = false;
+            _invaderManager.MothershipCreationAttempted = false;
             Score = 0;
             
             _invaderManager.KillAllInvaders();
@@ -86,7 +85,7 @@ namespace Invaders.Model
 
             _playerManager.TryClearPlayerDiedStatus();
             _invaderManager.MoveInvaders();
-            TryCreateMothership();
+            _invaderManager.TryCreateMothership();
             _shotManager.MoveShots();
             ReturnFire();
             DestroyHitInvaders();
@@ -129,7 +128,7 @@ namespace Invaders.Model
         private void NextWave()
         {
             Wave++;
-            _mothershipCreationAttempted = false;
+            _invaderManager.MothershipCreationAttempted = false;
             if (Wave > TotalWaves)
             {
                 return;
@@ -151,15 +150,6 @@ namespace Invaders.Model
             if (Lives < 0)
             {
                 EndGame();
-            }
-        }
-
-        private void TryCreateMothership()
-        {
-            if (!_mothershipCreationAttempted && _invaderManager.CheckCanCreateMothership())
-            {
-                if (_random.Next(0, 3) == 2) _invaderManager.CreateMothership();
-                _mothershipCreationAttempted = true;
             }
         }
 

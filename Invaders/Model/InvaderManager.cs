@@ -16,8 +16,10 @@ namespace Invaders.Model
         private readonly Random _random = new();
         private Direction _invaderDirection = Direction.Right;
         private Direction _mothershipDirection = Direction.Right;
-        private bool _justMovedDown;
         private DateTime _lastUpdated = DateTime.MinValue;
+        private bool _justMovedDown;
+
+        public bool MothershipCreationAttempted { get; set; }
 
         public InvaderManager(Size playAreaSize, OnShipChangedCallback onShipChanged) : base(onShipChanged)
         {
@@ -171,40 +173,16 @@ namespace Invaders.Model
                 select invader;
             return invadersReachedBottom.Any();
         }
-        
-        public bool CheckCanCreateMothership()
+
+        public void TryCreateMothership()
         {
-            bool haveSpace = false;
-            bool halfInvadersDied = false;
-            int uppermostInvaderY = GetUppermostInvaderY();
-            if (uppermostInvaderY > Invader.MothershipSize.Height * 2)
-                haveSpace = true;
-            if (_invaders.Count <= 33)
-                halfInvadersDied = true;
-            
-            if (haveSpace && halfInvadersDied)
+            if (!MothershipCreationAttempted && CheckGotSpaceForMothership() && CheckHaveHalfInvadersDied())
             {
-                return true;
+                if (_random.Next(0, 3) == 2) CreateMothership();
+                MothershipCreationAttempted = true;
             }
-        
-            return false;
         }
-        
-        public void CreateMothership()
-        {
-            Size size = new(Invader.MothershipSize.Width,Invader.MothershipSize.Height);
-            int startY = (GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
-            int startX = 0;
-            if (_random.Next(2) == 1)
-            {
-                startX = _playAreaSize.Width - Invader.MothershipSize.Width;
-                _mothershipDirection = Direction.Left;
-            }
-            Point startLocation = new(startX, startY);
-            Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
-            _invaders.Add(mothership);
-        }
-        
+
         private int GetUppermostInvaderY()
         {
             int y = _playAreaSize.Height;
@@ -217,7 +195,7 @@ namespace Invaders.Model
             }
             return y;
         }
-        
+
         private InvaderType GetInvaderType(int wave, int row)
         {
             return (wave, row) switch
@@ -250,7 +228,33 @@ namespace Invaders.Model
                     $"Failed to determine invader type for wave '{wave}' and row '{row}'.")
             };
         }
-        
+
+        private bool CheckGotSpaceForMothership()
+        {
+            int uppermostInvaderY = GetUppermostInvaderY();
+            return uppermostInvaderY > Invader.MothershipSize.Height * 2;
+        }
+
+        private bool CheckHaveHalfInvadersDied()
+        {
+            return _invaders.Count <= 33;
+        }
+
+        private void CreateMothership()
+        {
+            Size size = new(Invader.MothershipSize.Width,Invader.MothershipSize.Height);
+            int startY = (GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
+            int startX = 0;
+            if (_random.Next(2) == 1)
+            {
+                startX = _playAreaSize.Width - Invader.MothershipSize.Width;
+                _mothershipDirection = Direction.Left;
+            }
+            Point startLocation = new(startX, startY);
+            Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
+            _invaders.Add(mothership);
+        }
+
         private bool CheckMothershipReachedBorder()
         {
             if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
