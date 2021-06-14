@@ -162,7 +162,7 @@ namespace Invaders.Model
             else
             {
                 throw new ArgumentOutOfRangeException(nameof(invaderToRemove),
-                    $"Trying to remove an {nameof(AreaOccupier)} that is not an {nameof(Invader)}.");
+                    $"{nameof(AreaOccupier)} must be an {nameof(Invader)}.");
             }
         }
         
