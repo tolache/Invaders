@@ -2,7 +2,7 @@
 
 namespace Invaders.Model
 {
-    public abstract class Ship : AreaOccupier
+    public abstract class Ship : MovingBody
     {
         public ShipStatus ShipStatus;
         
@@ -12,8 +12,6 @@ namespace Invaders.Model
         {
             ShipStatus = ShipStatus.AliveNormal;
         }
-
-        public abstract void Move(Direction direction);
     }
 
     public enum ShipStatus

@@ -5,7 +5,7 @@ namespace Invaders.Model
 {
     public class PlayerManager : ShipManager
     {
-        public AreaOccupier Player => _player;
+        public MovingBody Player => _player;
         public ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
 
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);

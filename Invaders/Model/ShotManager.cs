@@ -15,14 +15,13 @@ namespace Invaders.Model
         private readonly List<Shot> _playerShots = new();
         private readonly List<Shot> _invaderShots = new();
         private readonly Size _playAreaSize;
+        private readonly OnShotMovedCallback _onShotMoved;
 
         public ShotManager(Size playAreaSize, OnShotMovedCallback onShotMoved)
         {
             _onShotMoved = onShotMoved;
             _playAreaSize = playAreaSize;
         }
-
-        private readonly OnShotMovedCallback _onShotMoved;
 
         public delegate void OnShotMovedCallback(Shot shot, bool disappeared);
 
@@ -54,7 +53,7 @@ namespace Invaders.Model
             }
         }
 
-        public void AddShot(AreaOccupier shooter)
+        public void AddShot(MovingBody shooter)
         {
             Point shotLocation = GetShotStartLocation(shooter);
             Direction shotDirection = shooter switch
@@ -125,9 +124,9 @@ namespace Invaders.Model
                 _onShotMoved(shot, true);
             }
     
-            foreach (Shot shot in _playerShots)
+            foreach (Shot playerShot in _playerShots)
             {
-                shot.Move();
+                playerShot.Move();
             }
 
             IEnumerable<Shot> visiblePlayerShots = from shot in _playerShots
@@ -151,7 +150,7 @@ namespace Invaders.Model
             }
         }
 
-        private Point GetShotStartLocation(AreaOccupier shooter)
+        private Point GetShotStartLocation(MovingBody shooter)
         {
             int shotX = shooter.Location.X + shooter.Size.Width / 2;
             int shotY = shooter switch

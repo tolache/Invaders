@@ -1,17 +1,20 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace Invaders.Model
 {
-    public abstract class AreaOccupier
+    public abstract class MovingBody
     {
         public Point Location { get; protected set; }
         public Size Size { get; }
         public Rectangle Area => new(Location, Size);
 
-        protected AreaOccupier(Point location, Size size)
+        protected MovingBody(Point location, Size size)
         {
             Location = location;
             Size = size;
         }
+
+        public abstract void Move(Direction direction);
     }
 }

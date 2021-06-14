@@ -156,10 +156,10 @@ namespace Invaders.Model
         private void DestroyHitInvaders()
         {
             List<Shot> playerShotsCopy = new List<Shot>(_shotManager.PlayerShots);
-            List<AreaOccupier> invadersCopy = new List<AreaOccupier>(_invaderManager.GetInvaders());
+            List<MovingBody> invadersCopy = new List<MovingBody>(_invaderManager.GetInvaders());
             foreach (Shot shot in playerShotsCopy)
             {
-                foreach (AreaOccupier areaOccupierInvader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
+                foreach (MovingBody areaOccupierInvader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
                 {
                     _shotManager.RemoveShots(shot);
                     _invaderManager.RemoveInvader(areaOccupierInvader as Invader);
@@ -175,7 +175,7 @@ namespace Invaders.Model
                 return;
             }
 
-            AreaOccupier shootingInvader = _invaderManager.DetermineShootingInvader();
+            MovingBody shootingInvader = _invaderManager.DetermineShootingInvader();
             _shotManager.AddShot(shootingInvader);
         }
         

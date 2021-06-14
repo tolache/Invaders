@@ -26,9 +26,9 @@ namespace Invaders.Model
             _playAreaSize = playAreaSize;
         }
         
-        public ReadOnlyCollection<AreaOccupier> GetInvaders()
+        public ReadOnlyCollection<MovingBody> GetInvaders()
         {
-            return _invaders.ConvertAll(_ => (AreaOccupier) _).AsReadOnly();
+            return _invaders.ConvertAll(_ => (MovingBody) _).AsReadOnly();
         }
 
         public void KillAllInvaders()
@@ -139,7 +139,7 @@ namespace Invaders.Model
             }
         }
 
-        public AreaOccupier DetermineShootingInvader()
+        public MovingBody DetermineShootingInvader()
         {
             var invaderColumns = from invader in _invaders
                 group invader by invader.Location.X
@@ -151,7 +151,7 @@ namespace Invaders.Model
             return shooter;
         }
 
-        public void RemoveInvader(AreaOccupier invaderToRemove)
+        public void RemoveInvader(MovingBody invaderToRemove)
         {
             if (invaderToRemove is Invader invader)
             {
@@ -162,7 +162,7 @@ namespace Invaders.Model
             else
             {
                 throw new ArgumentOutOfRangeException(nameof(invaderToRemove),
-                    $"{nameof(AreaOccupier)} must be an {nameof(Invader)}.");
+                    $"{nameof(MovingBody)} must be an {nameof(Invader)}.");
             }
         }
         
