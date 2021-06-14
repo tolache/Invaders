@@ -188,20 +188,7 @@ namespace Invaders.Model
             }
         }
 
-        private int GetUppermostInvaderY()
-        {
-            int y = _playAreaSize.Height;
-            foreach (Invader invader in _invaders)
-            {
-                if (invader.Location.Y < y)
-                {
-                    y = invader.Location.Y;
-                }
-            }
-            return y;
-        }
-
-        private InvaderType GetInvaderType(int wave, int row)
+        private static InvaderType GetInvaderType(int wave, int row)
         {
             return (wave, row) switch
             {
@@ -229,9 +216,21 @@ namespace Invaders.Model
                 (4, 4) => (InvaderType) 3,
                 (4, 5) => (InvaderType) 3,
                 (4, 6) => (InvaderType) 4,
-                _ => throw new ArgumentOutOfRangeException(nameof(row) + ", " + nameof(wave),
-                    $"Failed to determine invader type for wave '{wave}' and row '{row}'.")
+                _ => throw new ArgumentException($"Failed to determine invader type for wave '{wave}' and row '{row}'.")
             };
+        }
+
+        private int GetUppermostInvaderY()
+        {
+            int y = _playAreaSize.Height;
+            foreach (Invader invader in _invaders)
+            {
+                if (invader.Location.Y < y)
+                {
+                    y = invader.Location.Y;
+                }
+            }
+            return y;
         }
 
         private bool CheckGotSpaceForMothership()
