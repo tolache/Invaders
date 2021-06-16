@@ -169,7 +169,7 @@ namespace Invaders.Model
         public bool CheckInvadersReachedBottom(int invadersBottomBoundary)
         {
             var invadersReachedBottom = from invader in _invaders
-                where invader.Location.Y >= invadersBottomBoundary - _verticalInvaderSpacing
+                where invader.Location.Y >= invadersBottomBoundary - invader.Size.Height
                 select invader;
             return invadersReachedBottom.Any();
         }
