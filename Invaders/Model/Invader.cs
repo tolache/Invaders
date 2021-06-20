@@ -8,7 +8,8 @@ namespace Invaders.Model
         public static Size InvaderSize => new(15, 15);
         public static Size MothershipSize => new(InvaderSize.Width * 5, InvaderSize.Height * 2);
 
-        private const int InvaderSpeed = 3; 
+        public const double InvaderSpeed = 25;
+        public const double InvaderFormationDownSpeed = 150;
         
         public InvaderType Type { get; }
         public int Score { get; private set; }
@@ -18,25 +19,6 @@ namespace Invaders.Model
             Type = type;
             SetScoreValue(type);
             Speed = InvaderSpeed;
-        }
-
-        public override void Move(Direction direction)
-        {
-            Point oldLocation = Location;
-            switch (direction)
-            {
-                case Direction.Left:
-                    Location = new Point(oldLocation.X - Speed, oldLocation.Y);
-                    break;
-                case Direction.Right:
-                    Location = new Point(oldLocation.X + Speed, oldLocation.Y);
-                    break;
-                case Direction.Down:
-                    Location = new Point(oldLocation.X, oldLocation.Y + InvaderSize.Height);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(direction), $"Unexpected direction '{direction}' for invader type '{Type}'.");
-            }
         }
 
         private void SetScoreValue(InvaderType type)

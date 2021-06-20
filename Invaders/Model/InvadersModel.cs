@@ -144,7 +144,7 @@ namespace Invaders.Model
 
         private void HitPlayer()
         {
-            if (_playerManager.PlayerStatus != ShipStatus.AliveNormal) return;
+            if (_playerManager.PlayerStatus != ShipStatus.Alive) return;
             _playerManager.DamagePlayer();
             Lives--;
             if (Lives < 0)

@@ -85,7 +85,7 @@ namespace Invaders.Model
             {
                 foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
                 {
-                    invader.Move(Direction.Down);
+                    invader.Move(new Vector(Direction.Down, Invader.InvaderFormationDownSpeed));
                 }
                 _justMovedDown = true;
                 _invaderDirection = Direction.Left;
@@ -98,7 +98,7 @@ namespace Invaders.Model
             {
                 foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
                 {
-                    invader.Move(Direction.Down);
+                    invader.Move(new Vector(Direction.Down, Invader.InvaderFormationDownSpeed));
                 }
                 _justMovedDown = true;
                 _invaderDirection = Direction.Right;
@@ -108,7 +108,7 @@ namespace Invaders.Model
             {
                 foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
                 {
-                    invader.Move(_invaderDirection);
+                    invader.Move(new Vector(_invaderDirection, Invader.InvaderSpeed));
                 }
             }
 
@@ -123,7 +123,7 @@ namespace Invaders.Model
                 }
                 else
                 {
-                    mothership.Move(_mothershipDirection);
+                    mothership.Move(new Vector(_mothershipDirection, Invader.InvaderSize.Height));
                 }
             }
 
@@ -134,7 +134,7 @@ namespace Invaders.Model
         {
             foreach (Invader invader in _invaders)
             {
-                invader.ShipStatus = ShipStatus.AliveNormal;
+                invader.ShipStatus = ShipStatus.Alive;
                 OnShipChanged(invader);
             }
         }

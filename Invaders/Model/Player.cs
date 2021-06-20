@@ -24,15 +24,11 @@ namespace Invaders.Model
             _batteryChargeRate = TimeSpan.FromMilliseconds(BatteryChargeTimeMs);
         }
 
-        public override void Move(Direction direction)
+        public override void Move(Vector vector)
         {
-            Point oldLocation = Location;
-            Location = direction switch
-            {
-                Direction.Left => new Point(oldLocation.X - Speed, oldLocation.Y),
-                Direction.Right => new Point(oldLocation.X + Speed, oldLocation.Y),
-                _ => throw new ArgumentOutOfRangeException(nameof(direction), $"Invalid direction '{direction}' for '{GetType()}'."),
-            };
+            int distance = (int) Math.Round(vector.Speed, MidpointRounding.AwayFromZero);
+            ChangeLocation(vector.Direction, distance);
+            LastMoved = DateTime.Now;
         }
 
         public void ChargeBattery()

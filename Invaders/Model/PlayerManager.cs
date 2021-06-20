@@ -6,7 +6,7 @@ namespace Invaders.Model
     public class PlayerManager : ShipManager
     {
         public MovingBody Player => _player;
-        public ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.AliveNormal;
+        public ShipStatus PlayerStatus => _playerDied.HasValue ? ShipStatus.Killed : ShipStatus.Alive;
 
         private readonly TimeSpan _playerInvincibilityDuration = TimeSpan.FromMilliseconds(2500);
         private readonly TimeSpan _playerFreezeDuration = TimeSpan.FromMilliseconds(1500);
@@ -21,7 +21,7 @@ namespace Invaders.Model
         
         public void CreatePlayer()
         {
-            _player = new Player(GetPlayerStartLocation(), Model.Player.PlayerSize) {ShipStatus = ShipStatus.AliveNormal};
+            _player = new Player(GetPlayerStartLocation(), Model.Player.PlayerSize) {ShipStatus = ShipStatus.Alive};
             OnShipChanged(_player);
         }
 
@@ -61,7 +61,7 @@ namespace Invaders.Model
         {
             if (CheckIsPlayerFrozen() || CheckPlayerReachedBoundary(direction)) return;
 
-            _player.Move(direction);
+            _player.Move(new Vector(direction, _player.Speed));
             _player.ShipStatus = PlayerStatus;
             OnShipChanged(_player);
         }

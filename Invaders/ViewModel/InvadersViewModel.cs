@@ -184,7 +184,7 @@ namespace Invaders.ViewModel
 
         private void OnModelShipChanged(object? sender, ShipChangedEventArgs e)
         {
-            if (e.Ship.ShipStatus == ShipStatus.AliveNormal)
+            if (e.Ship.ShipStatus == ShipStatus.Alive)
             {
                 if (e.Ship is Invader invader)
                 {
