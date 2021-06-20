@@ -9,7 +9,7 @@ namespace Invaders.Model
 
         private const int PlayerSpeed = 3;
         private const int BatterySize = 3;
-        private const int BatteryChargeTimeMs = 400;
+        private const int BatteryChargeTimeMs = 500;
         private DateTime _batteryChargeChange;
         private readonly TimeSpan _batteryChargeRate;
 
