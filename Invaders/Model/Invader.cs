@@ -8,8 +8,8 @@ namespace Invaders.Model
         public static Size InvaderSize => new(15, 15);
         public static Size MothershipSize => new(InvaderSize.Width * 5, InvaderSize.Height * 2);
 
-        public const double InvaderSpeed = 25;
-        public const double InvaderFormationDownSpeed = 150;
+        public const double InvaderSpeed = 17.5;
+        public const double InvaderFormationDownSpeed = 500;
         
         public InvaderType Type { get; }
         public int Score { get; private set; }

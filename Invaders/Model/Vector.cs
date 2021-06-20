@@ -2,8 +2,8 @@
 {
     public class Vector
     {
-        public Direction Direction { get; }
-        public double Speed { get; }
+        public Direction Direction { get; set; }
+        public double Speed { get; set; }
 
         public Vector(Direction direction, double speed)
         {
