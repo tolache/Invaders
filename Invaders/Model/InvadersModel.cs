@@ -166,6 +166,7 @@ namespace Invaders.Model
                     if (areaOccupierInvader is Invader invader) Score += invader.Score;
                 }
             }
+            // TODO: mark formation slot as unoccupied
         }
 
         private void ReturnFire()

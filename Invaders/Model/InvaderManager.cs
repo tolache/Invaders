@@ -8,32 +8,32 @@ namespace Invaders.Model
 {
     public class InvaderManager : ShipManager
     {
-        private readonly List<Invader> _invaders = new();
-        private readonly int _horizontalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Width * 0.5);
-        private readonly int _verticalInvaderSpacing = Convert.ToInt32(Invader.InvaderSize.Height * 0.5);
+        private readonly Dictionary<Invader,FormationSlot?> _invaders = new();
+        private readonly InvaderFormation _invaderFormation;
         private readonly Size _playAreaSize;
         private readonly Random _random = new();
-        private Direction _invaderDirection = Direction.Right;
         private Direction _mothershipDirection = Direction.Right;
-        private bool _justMovedDown;
 
         public bool MothershipCreationAttempted { get; set; }
 
         public InvaderManager(Size playAreaSize, OnShipChangedCallback onShipChanged) : base(onShipChanged)
         {
             _playAreaSize = playAreaSize;
+            _invaderFormation = new InvaderFormation(_playAreaSize);
         }
 
         public ReadOnlyCollection<MovingBody> GetInvaders()
         {
-            return _invaders.ConvertAll(_ => (MovingBody) _).AsReadOnly();
+            List<Invader> invaders = _invaders.Keys.ToList();
+            return invaders.ConvertAll(_ => (MovingBody) _).AsReadOnly();
         }
 
         public void KillAllInvaders()
         {
-            foreach (Invader invader in _invaders)
+            foreach (Invader invader in _invaders.Keys)
             {
                 invader.ShipStatus = ShipStatus.Killed;
+                
                 OnShipChanged(invader);
             }
 
@@ -42,69 +42,32 @@ namespace Invaders.Model
 
         public void CreateInvaders(int wave)
         {
+            for (int column = 0; column < 11; column++)
             {
-                int invaderX = _horizontalInvaderSpacing;
-
-                for (int invaderColumn = 1; invaderColumn <= 11; invaderColumn++)
+                for (int row = 0; row < 6; row++)
                 {
-                    int invaderY = _verticalInvaderSpacing;
-
-                    Invader[] currentColumn = new Invader[6];
-                    for (int row = 6; row >= 1; row--)
-                    {
-                        Invader invader = new Invader(GetInvaderType(wave, row), new Point(invaderX, invaderY),
-                            Invader.InvaderSize);
-                        currentColumn[row - 1] = invader;
-
-                        invaderY += Invader.InvaderSize.Height + _verticalInvaderSpacing;
-                    }
-
-                    _invaders.AddRange(currentColumn);
-
-                    invaderX += Invader.InvaderSize.Width + _horizontalInvaderSpacing;
+                    Point location = _invaderFormation.GetSlotLocation(column, row);
+                    InvaderType type = GetInvaderType(wave, row);
+                    Invader invader = new Invader(type, location, Invader.InvaderSize);
+                    FormationSlot slot = new FormationSlot(_invaderFormation, column, row);
+                    _invaders.Add(invader, slot);
                 }
             }
         }
 
         public void MoveInvaders()
         {
-            _justMovedDown = false;
-
-            if (CheckFormationReachedRightBoundary())
-            {
-                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                {
-                    Vector downFast = new Vector(Direction.Down, Invader.InvaderFormationDownSpeed);
-                    invader.Move(downFast);
-                }
-
-                _justMovedDown = true;
-                _invaderDirection = Direction.Left;
-            }
+            _invaderFormation.UpdateFormationLocation();
             
-            if (CheckFormationReachedLeftBoundary())
+            foreach (Invader invader in _invaders.Keys.Where(_ => _.Type != InvaderType.Mothership))
             {
-                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                {
-                    Vector downFast = new Vector(Direction.Down, Invader.InvaderFormationDownSpeed);
-                    invader.Move(downFast);
-                }
-
-                _justMovedDown = true;
-                _invaderDirection = Direction.Right;
+                Point target = _invaders[invader].Location;
+                invader.Move(target);
             }
 
-            if (!_justMovedDown)
+            if (_invaders.Keys.Any(invader => invader.Type == InvaderType.Mothership))
             {
-                foreach (Invader invader in _invaders.Where(invader => invader.Type != InvaderType.Mothership))
-                {
-                    invader.Move(new Vector(_invaderDirection, invader.Speed));
-                }
-            }
-
-            if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
-            {
-                Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
+                Invader mothership = _invaders.Keys.First(invader => invader.Type == InvaderType.Mothership);
                 if (CheckMothershipReachedBorder())
                 {
                     _invaders.Remove(mothership);
@@ -113,14 +76,14 @@ namespace Invaders.Model
                 }
                 else
                 {
-                    mothership.Move(new Vector(_mothershipDirection, mothership.Speed));
+                    mothership.Move(_mothershipDirection, mothership.MoveDistance);
                 }
             }
         }
 
         public void UpdateAllInvaderShips()
         {
-            foreach (Invader invader in _invaders)
+            foreach (Invader invader in _invaders.Keys)
             {
                 invader.ShipStatus = ShipStatus.Alive;
                 OnShipChanged(invader);
@@ -129,14 +92,14 @@ namespace Invaders.Model
 
         public MovingBody DetermineShootingInvader()
         {
-            var invaderColumns = from invader in _invaders
+            var invaderColumns = from invader in _invaders.Keys
                 group invader by invader.Location.X
                 into invaderColumn
                 select invaderColumn;
             var invaderColumnsList = invaderColumns.ToList();
             IGrouping<int, Invader> randomColumn =
                 invaderColumnsList.ElementAt(_random.Next(invaderColumnsList.Count()));
-            Invader shooter = randomColumn.ToList().First();
+            Invader shooter = randomColumn.ToList().Last();
             return shooter;
         }
 
@@ -157,7 +120,8 @@ namespace Invaders.Model
 
         public bool CheckInvadersReachedBottom(int invadersBottomBoundary)
         {
-            var invadersReachedBottom = from invader in _invaders
+            // TODO: move this method to InvaderFormation
+            var invadersReachedBottom = from invader in _invaders.Keys
                 where invader.Location.Y >= invadersBottomBoundary - invader.Size.Height
                 select invader;
             return invadersReachedBottom.Any();
@@ -176,60 +140,42 @@ namespace Invaders.Model
         {
             return (wave, row) switch
             {
-                (1, 1) => (InvaderType) 0,
-                (1, 2) => (InvaderType) 0,
+                (1, 5) => (InvaderType) 0,
+                (1, 4) => (InvaderType) 0,
                 (1, 3) => (InvaderType) 1,
-                (1, 4) => (InvaderType) 1,
-                (1, 5) => (InvaderType) 2,
-                (1, 6) => (InvaderType) 3,
-                (2, 1) => (InvaderType) 0,
-                (2, 2) => (InvaderType) 1,
-                (2, 3) => (InvaderType) 1,
+                (1, 2) => (InvaderType) 1,
+                (1, 1) => (InvaderType) 2,
+                (1, 0) => (InvaderType) 3,
+                
+                (2, 5) => (InvaderType) 0,
                 (2, 4) => (InvaderType) 1,
-                (2, 5) => (InvaderType) 2,
-                (2, 6) => (InvaderType) 3,
-                (3, 1) => (InvaderType) 5,
-                (3, 2) => (InvaderType) 1,
+                (2, 3) => (InvaderType) 1,
+                (2, 2) => (InvaderType) 1,
+                (2, 1) => (InvaderType) 2,
+                (2, 0) => (InvaderType) 3,
+                
+                (3, 5) => (InvaderType) 5,
+                (3, 4) => (InvaderType) 1,
                 (3, 3) => (InvaderType) 2,
-                (3, 4) => (InvaderType) 2,
-                (3, 5) => (InvaderType) 3,
-                (3, 6) => (InvaderType) 3,
-                (4, 1) => (InvaderType) 5,
-                (4, 2) => (InvaderType) 5,
+                (3, 2) => (InvaderType) 2,
+                (3, 1) => (InvaderType) 3,
+                (3, 0) => (InvaderType) 3,
+                
+                (4, 5) => (InvaderType) 5,
+                (4, 4) => (InvaderType) 5,
                 (4, 3) => (InvaderType) 2,
-                (4, 4) => (InvaderType) 3,
-                (4, 5) => (InvaderType) 3,
-                (4, 6) => (InvaderType) 4,
+                (4, 2) => (InvaderType) 3,
+                (4, 1) => (InvaderType) 3,
+                (4, 0) => (InvaderType) 4,
                 _ => throw new ArgumentException($"Failed to determine invader type for wave '{wave}' and row '{row}'.")
             };
         }
 
-        private bool CheckFormationReachedRightBoundary()
-        {
-            IEnumerable<Invader> invadersCloseToRightBoundary = from invader in _invaders
-                where invader.Location.X > _playAreaSize.Width - invader.Size.Width * 2 &&
-                      invader.Type != InvaderType.Mothership
-                select invader;
-            if (invadersCloseToRightBoundary.Any() && _invaderDirection == Direction.Right)
-                return true;
-            return false;
-        }
-        
-        private bool CheckFormationReachedLeftBoundary()
-        {
-            IEnumerable<Invader> invadersCloseToLeftBoundary = from invader in _invaders
-                where invader.Location.X < invader.Size.Width &&
-                      invader.Type != InvaderType.Mothership
-                select invader;
-            if (invadersCloseToLeftBoundary.Any() && _invaderDirection == Direction.Left)
-                return true;
-            return false;
-        }
-
         private int GetUppermostInvaderY()
         {
+            // TODO: move this method to InvaderFormation
             int y = _playAreaSize.Height;
-            foreach (Invader invader in _invaders)
+            foreach (Invader invader in _invaders.Keys)
             {
                 if (invader.Location.Y < y)
                 {
@@ -262,14 +208,14 @@ namespace Invaders.Model
             }
             Point startLocation = new(startX, startY);
             Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
-            _invaders.Add(mothership);
+            _invaders.Add(mothership, null);
         }
 
         private bool CheckMothershipReachedBorder()
         {
-            if (_invaders.Any(invader => invader.Type == InvaderType.Mothership))
+            if (_invaders.Keys.Any(invader => invader.Type == InvaderType.Mothership))
             {
-                Invader mothership = _invaders.First(invader => invader.Type == InvaderType.Mothership);
+                Invader mothership = _invaders.Keys.First(invader => invader.Type == InvaderType.Mothership);
                 if (_mothershipDirection == Direction.Right
                     && mothership.Location.X >
                     _playAreaSize.Width - mothership.Size.Width - Invader.InvaderSize.Width / 2

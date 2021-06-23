@@ -8,9 +8,8 @@ namespace Invaders.Model
         public static Size InvaderSize => new(15, 15);
         public static Size MothershipSize => new(InvaderSize.Width * 5, InvaderSize.Height * 2);
 
-        public const double InvaderSpeed = 17.5;
-        public const double InvaderFormationDownSpeed = 500;
-        
+        private const int InvaderSpeed = 3;
+
         public InvaderType Type { get; }
         public int Score { get; private set; }
 
@@ -18,7 +17,37 @@ namespace Invaders.Model
         {
             Type = type;
             SetScoreValue(type);
-            Speed = InvaderSpeed;
+            MoveDistance = InvaderSpeed;
+        }
+
+        public void Move(Point target)
+        {
+            int horizontalDistanceToTarget = Location.X - target.X;
+            int verticalDistanceToTarget = Location.Y - target.Y;
+
+            Direction direction = Direction.Undefined;
+            int distance = MoveDistance;
+            if (Math.Abs(horizontalDistanceToTarget) > Math.Abs(verticalDistanceToTarget))
+            {
+                if (horizontalDistanceToTarget < 0) direction = Direction.Right;
+                else if (horizontalDistanceToTarget > 0) direction = Direction.Left;
+
+                if (horizontalDistanceToTarget < MoveDistance) 
+                    distance = horizontalDistanceToTarget;
+            }
+            else
+            {
+                if (verticalDistanceToTarget < 0) direction = Direction.Down;
+                else if (verticalDistanceToTarget > 0) direction = Direction.Up;
+
+                if (verticalDistanceToTarget < MoveDistance) 
+                    distance = verticalDistanceToTarget;
+            }
+            
+            if (direction != Direction.Undefined)
+            {
+                Move(direction, distance);
+            }
         }
 
         private void SetScoreValue(InvaderType type)

@@ -18,17 +18,10 @@ namespace Invaders.Model
 
         public Player(Point location, Size size) : base(location, size)
         {
-            Speed = PlayerSpeed;
+            MoveDistance = PlayerSpeed;
             CurrentBatteryCharge = BatterySize;
             _batteryChargeChange = DateTime.Now;
             _batteryChargeRate = TimeSpan.FromMilliseconds(BatteryChargeTimeMs);
-        }
-
-        public override void Move(Vector vector)
-        {
-            int distance = (int) Math.Round(vector.Speed, MidpointRounding.AwayFromZero);
-            ChangeLocation(vector.Direction, distance);
-            LastMoved = DateTime.Now;
         }
 
         public void ChargeBattery()

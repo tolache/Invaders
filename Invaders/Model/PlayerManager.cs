@@ -61,7 +61,7 @@ namespace Invaders.Model
         {
             if (CheckIsPlayerFrozen() || CheckPlayerReachedBoundary(direction)) return;
 
-            _player.Move(new Vector(direction, _player.Speed));
+            _player.Move(direction, _player.MoveDistance);
             _player.ShipStatus = PlayerStatus;
             OnShipChanged(_player);
         }
@@ -84,8 +84,8 @@ namespace Invaders.Model
 
         private bool CheckPlayerReachedBoundary(Direction direction)
         {
-            bool isPlayerNextToLeftBoundary = Player.Location.X < _player.Speed;
-            bool isPlayerNextToRightBoundary = Player.Location.X > _playAreaSize.Width - Player.Size.Width - _player.Speed;
+            bool isPlayerNextToLeftBoundary = Player.Location.X < _player.MoveDistance;
+            bool isPlayerNextToRightBoundary = Player.Location.X > _playAreaSize.Width - Player.Size.Width - _player.MoveDistance;
             if (direction == Direction.Left && isPlayerNextToLeftBoundary ||
                 direction == Direction.Right && isPlayerNextToRightBoundary)
                 return true;
