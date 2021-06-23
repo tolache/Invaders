@@ -23,8 +23,7 @@ namespace Invaders.ViewModel
         public int Wave { get; private set; }
 
         private static double Scale { get; set; }
-        // Working around https://github.com/naudio/NAudio/issues/789
-        // private readonly AudioPlaybackViewModel _audioPlaybackViewModel;
+        private readonly AudioPlaybackViewModel _audioPlaybackViewModel;
         private readonly ObservableCollection<FrameworkElement> _sprites = new();
         private readonly ObservableCollection<object> _lives = new();
         private bool _lastPaused = true;
@@ -59,8 +58,7 @@ namespace Invaders.ViewModel
         {
             Scale = 1;
             
-            // Working around https://github.com/naudio/NAudio/issues/789
-            // _audioPlaybackViewModel = new AudioPlaybackViewModel();
+            _audioPlaybackViewModel = new AudioPlaybackViewModel();
 
             _model.ShipChanged += OnModelShipChanged;
             _model.ShotMoved += OnModelShotMoved;
@@ -239,8 +237,7 @@ namespace Invaders.ViewModel
                     RemoveInvaderSprite(invader);
                     if (e.Ship.ShipStatus == ShipStatus.Killed)
                     {
-                        // Working around https://github.com/naudio/NAudio/issues/789
-                        // _audioPlaybackViewModel.LaserHitCommand.Execute(null);
+                        _audioPlaybackViewModel.LaserHitCommand.Execute(null);
                     }
                 }
                 else if (e.Ship is Player player)
@@ -249,16 +246,14 @@ namespace Invaders.ViewModel
                     {
                         AnimatedImage playerAnimatedImage = _playerControl as AnimatedImage;
                         playerAnimatedImage?.FadeOut();
-                        // Working around https://github.com/naudio/NAudio/issues/789
-                        // _audioPlaybackViewModel.PlayerDeadCommand.Execute(null);
+                        _audioPlaybackViewModel.PlayerDeadCommand.Execute(null);
                     }
                     else if (!_playerHitAnimationInProgress)
                     {
                         AnimatedImage playerAnimatedImage = _playerControl as AnimatedImage;
                         playerAnimatedImage?.StartFlashing();
                         _playerHitAnimationInProgress = true;
-                        // Working around https://github.com/naudio/NAudio/issues/789
-                        // _audioPlaybackViewModel.PlayerHitCommand.Execute(null);
+                        _audioPlaybackViewModel.PlayerHitCommand.Execute(null);
                     }
                     Point playerLocation = new(player.Location.X, player.Location.Y);
                     InvadersHelper.SetCanvasLocation(_playerControl, playerLocation, Scale);
@@ -288,8 +283,7 @@ namespace Invaders.ViewModel
                     _sprites.Add(shotControl);
                     if (e.Shot.Direction == Direction.Up)
                     {
-                        // Working around https://github.com/naudio/NAudio/issues/789
-                        // _audioPlaybackViewModel.PlayerLaserShootCommand.Execute(null);
+                        _audioPlaybackViewModel.PlayerLaserShootCommand.Execute(null);
                     }
                 }
                 else
