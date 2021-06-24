@@ -32,7 +32,7 @@ namespace Invaders.Model
                 if (horizontalDistanceToTarget < 0) direction = Direction.Right;
                 else if (horizontalDistanceToTarget > 0) direction = Direction.Left;
 
-                if (horizontalDistanceToTarget < MoveDistance) 
+                if (Math.Abs(horizontalDistanceToTarget) < MoveDistance) 
                     distance = horizontalDistanceToTarget;
             }
             else
@@ -40,7 +40,7 @@ namespace Invaders.Model
                 if (verticalDistanceToTarget < 0) direction = Direction.Down;
                 else if (verticalDistanceToTarget > 0) direction = Direction.Up;
 
-                if (verticalDistanceToTarget < MoveDistance) 
+                if (Math.Abs(verticalDistanceToTarget) < MoveDistance) 
                     distance = verticalDistanceToTarget;
             }
             
