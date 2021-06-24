@@ -38,6 +38,7 @@ namespace Invaders.Model
             }
 
             _invaders.Clear();
+            _invaderFormation.ResetFormation();
         }
 
         public void CreateInvaders(int wave)
