@@ -9,15 +9,19 @@ namespace Invaders.Model
         public static Size MothershipSize => new(InvaderSize.Width * 5, InvaderSize.Height * 2);
 
         private const int InvaderSpeed = 3;
+        private const int MothershipSpeed = 2;
 
         public InvaderType Type { get; }
         public int Score { get; private set; }
 
-        public Invader(InvaderType type, Point location, Size size) : base(location, size)
+        public Invader(InvaderType type, Point location) : base(location, GetShipSize(type))
         {
             Type = type;
             SetScoreValue(type);
-            MoveDistance = InvaderSpeed;
+            if (Type == InvaderType.Mothership)
+                MoveDistance = MothershipSpeed;
+            else
+                MoveDistance = InvaderSpeed;
         }
 
         public void Move(Point target)
@@ -48,6 +52,14 @@ namespace Invaders.Model
             {
                 Move(direction, distance);
             }
+        }
+
+        private static Size GetShipSize(InvaderType type)
+        {
+            if (type == InvaderType.Mothership)
+                return MothershipSize;
+            else
+                return InvaderSize;
         }
 
         private void SetScoreValue(InvaderType type)

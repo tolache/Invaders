@@ -68,6 +68,11 @@ namespace Invaders.Model
         {
             return _formationSlots[column, row].Location;
         }
+        
+        public void SetSlot(FormationSlot slot)
+        {
+            _formationSlots[slot.Column, slot.Row] = slot;
+        }
 
         private bool CheckFormationReachedRightBoundary()
         {

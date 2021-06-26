@@ -49,8 +49,9 @@ namespace Invaders.Model
                 {
                     Point location = _invaderFormation.GetSlotLocation(column, row);
                     InvaderType type = GetInvaderType(wave, row);
-                    Invader invader = new Invader(type, location, Invader.InvaderSize);
+                    Invader invader = new Invader(type, location);
                     FormationSlot slot = new FormationSlot(_invaderFormation, column, row);
+                    _invaderFormation.SetSlot(slot);
                     _invaders.Add(invader, slot);
                 }
             }
@@ -62,7 +63,8 @@ namespace Invaders.Model
             
             foreach (Invader invader in _invaders.Keys.Where(_ => _.Type != InvaderType.Mothership))
             {
-                Point target = _invaders[invader].Location;
+                if (_invaders[invader] == null) continue;
+                Point target = _invaders[invader]!.Location;
                 invader.Move(target);
             }
 
@@ -108,6 +110,7 @@ namespace Invaders.Model
         {
             if (invaderToRemove is Invader invader)
             {
+                _invaders[invader].Occupied = false;
                 _invaders.Remove(invader);
                 invader.ShipStatus = ShipStatus.Killed;
                 OnShipChanged(invader);
@@ -199,7 +202,6 @@ namespace Invaders.Model
 
         private void CreateMothership()
         {
-            Size size = new(Invader.MothershipSize.Width,Invader.MothershipSize.Height);
             int startY = (GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
             int startX = 0;
             if (_random.Next(2) == 1)
@@ -208,7 +210,7 @@ namespace Invaders.Model
                 _mothershipDirection = Direction.Left;
             }
             Point startLocation = new(startX, startY);
-            Invader mothership = new Invader(InvaderType.Mothership, startLocation, size);
+            Invader mothership = new Invader(InvaderType.Mothership, startLocation);
             _invaders.Add(mothership, null);
         }
 
