@@ -178,23 +178,9 @@ namespace Invaders.Model
             return target;
         }
 
-        private int GetUppermostInvaderY()
-        {
-            // TODO: move this method to InvaderFormation
-            int y = _playAreaSize.Height;
-            foreach (Invader invader in _invaders.Keys)
-            {
-                if (invader.Location.Y < y)
-                {
-                    y = invader.Location.Y;
-                }
-            }
-            return y;
-        }
-
         private bool CheckGotSpaceForMothership()
         {
-            int uppermostInvaderY = GetUppermostInvaderY();
+            int uppermostInvaderY = _invaderFormation.GetUppermostInvaderY();
             return uppermostInvaderY > Invader.MothershipSize.Height * 2;
         }
 
@@ -205,7 +191,7 @@ namespace Invaders.Model
 
         private void CreateMothership()
         {
-            int startY = (GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
+            int startY = (_invaderFormation.GetUppermostInvaderY() - Invader.MothershipSize.Height) / 2;
             int startX = 0;
             if (_random.Next(2) == 1)
             {

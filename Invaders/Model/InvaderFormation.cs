@@ -90,6 +90,18 @@ namespace Invaders.Model
             else
                 return false;
         }
+        
+        public int GetUppermostInvaderY()
+        {
+            int y = _playAreaSize.Height;
+            IEnumerable<FormationSlot> occupiedSlots = _formationSlots.Cast<FormationSlot>().Where(_ => _.Occupied).ToList();
+            foreach (FormationSlot slot in occupiedSlots)
+            {
+                if (slot.Location.Y < y) 
+                    y = slot.Location.Y;
+            }
+            return y;
+        }
 
         private bool CheckFormationReachedRightBoundary()
         {
