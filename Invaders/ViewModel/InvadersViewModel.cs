@@ -33,6 +33,7 @@ namespace Invaders.ViewModel
         private DateTime? _leftAction;
         private DateTime? _rightAction;
 
+        public static int TotalWaves => InvadersModel.TotalWaves;
         public INotifyCollectionChanged Sprites => _sprites;
         public ObservableCollection<object> Lives => _lives;
         public bool GameOver => _model.GameOver;

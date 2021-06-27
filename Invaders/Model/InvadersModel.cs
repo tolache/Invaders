@@ -9,7 +9,8 @@ namespace Invaders.Model
 {
     public sealed class InvadersModel
     {
-        private const int TotalWaves = 4;
+        public const int TotalWaves = 4;
+        
         private readonly Size _playAreaSize = new(400, 300);
         private readonly PlayerManager _playerManager;
         private readonly InvaderManager _invaderManager;

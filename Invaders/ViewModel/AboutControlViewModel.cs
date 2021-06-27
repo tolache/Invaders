@@ -51,6 +51,7 @@ namespace Invaders.ViewModel
 			Publisher = company.Company;
 
 			AdditionalNotes = "This is a test assignment app from Head First C# 3rd edition book." + Environment.NewLine +
+			                  $"Survive {InvadersViewModel.TotalWaves} waves of evil invaders to save the earth!" + Environment.NewLine +
 			                  "Special thanks to @annliseevnaart";
 		}
 
