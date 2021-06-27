@@ -58,7 +58,7 @@ namespace Invaders.Model
             _playerManager.CreatePlayer();
 
             Lives = 2;
-            Wave = 0;
+            Wave = 3;
             NextWave();
         }
 
@@ -175,14 +175,16 @@ namespace Invaders.Model
                 _shotManager.AddShot(bomber);
                 bomber.BomberStatus = BomberStatus.Returning;
             }
-            
-            if (!_shotManager.CheckInvadersCanShoot(Wave + 1))
+
+            int maxInvaderShots = Wave + 1;
+            if (!_shotManager.CheckInvadersCanShoot(maxInvaderShots, _invaderManager.GetInvaders().Count))
             {
                 return;
             }
 
             MovingBody shootingInvader = _invaderManager.DetermineShootingInvader();
             _shotManager.AddShot(shootingInvader);
+            
         }
 
         private List<Shot> GetShotsHittingPlayer()
