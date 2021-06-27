@@ -14,6 +14,25 @@ namespace Invaders.ViewModel
 {
     public class InvadersViewModel : INotifyPropertyChanged
     {
+        private const int TickRateMs = 31;
+        private readonly AudioPlaybackViewModel _audioPlaybackViewModel;
+        private readonly ObservableCollection<FrameworkElement> _sprites = new();
+        private readonly ObservableCollection<object> _lives = new();
+        private readonly InvadersModel _model = new();
+        private readonly DispatcherTimer _timer = new();
+        private readonly Dictionary<Invader, FrameworkElement> _invaders = new();
+        private readonly Dictionary<FrameworkElement, DateTime> _removedInvaders = new();
+        private readonly Dictionary<Shot, FrameworkElement> _shots = new();
+        private readonly Dictionary<System.Drawing.Point, FrameworkElement> _stars = new();
+        private readonly Dictionary<FrameworkElement, DateTime> _fadedStars = new();
+        private readonly List<FrameworkElement> _scanLines = new();
+        private bool _lastPaused = true;
+        private int _lastPlayerBatteryCharge;
+        private FrameworkElement _playerControl;
+        private bool _playerHitAnimationInProgress;
+        private DateTime? _leftAction;
+        private DateTime? _rightAction;
+
         public INotifyCollectionChanged Sprites => _sprites;
         public ObservableCollection<object> Lives => _lives;
         public bool GameOver => _model.GameOver;
@@ -21,14 +40,6 @@ namespace Invaders.ViewModel
         public bool Paused { get; set; }
         public int Score { get; private set; }
         public int Wave { get; private set; }
-
-        private static double Scale { get; set; }
-        private readonly AudioPlaybackViewModel _audioPlaybackViewModel;
-        private readonly ObservableCollection<FrameworkElement> _sprites = new();
-        private readonly ObservableCollection<object> _lives = new();
-        private bool _lastPaused = true;
-        private int _lastPlayerBatteryCharge;
-
         public Size PlayAreaSize
         {
             set
@@ -38,22 +49,9 @@ namespace Invaders.ViewModel
                 RecreateScanLines();
             }
         }
-
-        private readonly InvadersModel _model = new();
-        private readonly DispatcherTimer _timer = new();
-        private FrameworkElement _playerControl;
-        private bool _playerHitAnimationInProgress;
-        private readonly Dictionary<Invader, FrameworkElement> _invaders = new();
-
-        private readonly Dictionary<FrameworkElement, DateTime> _removedInvaders = new();
-
-        private readonly Dictionary<Shot, FrameworkElement> _shots = new();
-        private readonly Dictionary<System.Drawing.Point, FrameworkElement> _stars = new();
-        private readonly Dictionary<FrameworkElement, DateTime> _fadedStars = new();
-        private readonly List<FrameworkElement> _scanLines = new();
-        private DateTime? _leftAction;
-        private DateTime? _rightAction;
         
+        private static double Scale { get; set; }
+
         public InvadersViewModel()
         {
             Scale = 1;
@@ -64,7 +62,7 @@ namespace Invaders.ViewModel
             _model.ShotMoved += OnModelShotMoved;
             _model.StarChanged += OnModelStarChanged;
 
-            _timer.Interval = TimeSpan.FromMilliseconds(31);
+            _timer.Interval = TimeSpan.FromMilliseconds(TickRateMs);
             _timer.Tick += OnTimerTick;
             
             EndGame();
