@@ -144,7 +144,8 @@ namespace Invaders.Model
             {
                 Invader bomber = bombers.First();
                 if (bomber.BomberStatus == BomberStatus.Diving &&
-                    bomber.Location == GetBombingPosition(diveBombingTarget))
+                    bomber.Location.Y == GetBombingPosition(diveBombingTarget).Y &&
+                    Math.Abs(bomber.Location.X - GetBombingPosition(diveBombingTarget).X) <= bomber.MoveDistance * 2)
                 {
                     bomber.BomberStatus = BomberStatus.ReadyToFire;
                 }
