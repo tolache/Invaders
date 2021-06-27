@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
@@ -75,6 +76,19 @@ namespace Invaders.Model
         public void SetSlot(FormationSlot slot)
         {
             _formationSlots[slot.Column, slot.Row] = slot;
+        }
+
+        public bool CheckFormationReachedBottom(int formationBottomBoundary)
+        {
+            IEnumerable<FormationSlot> occupiedSlots = _formationSlots.Cast<FormationSlot>().Where(_ => _.Occupied).ToList();
+            IEnumerable<FormationSlot> occupiedSlotsCloseToBottom = from slot in occupiedSlots
+                where slot.Location.Y + SlotSize.Height >= formationBottomBoundary
+                select slot;
+            
+            if (occupiedSlotsCloseToBottom.Any())
+                return true;
+            else
+                return false;
         }
 
         private bool CheckFormationReachedRightBoundary()

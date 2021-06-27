@@ -125,11 +125,7 @@ namespace Invaders.Model
 
         public bool CheckInvadersReachedBottom(int invadersBottomBoundary)
         {
-            // TODO: move this method to InvaderFormation
-            var invadersReachedBottom = from invader in _invaders.Keys
-                where invader.Location.Y >= invadersBottomBoundary - invader.Size.Height
-                select invader;
-            return invadersReachedBottom.Any();
+            return _invaderFormation.CheckFormationReachedBottom(invadersBottomBoundary);
         }
 
         public void TryCreateMothership()
