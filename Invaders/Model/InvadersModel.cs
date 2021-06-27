@@ -58,7 +58,7 @@ namespace Invaders.Model
             _playerManager.CreatePlayer();
 
             Lives = 2;
-            Wave = 3;
+            Wave = 0;
             NextWave();
         }
 
