@@ -162,11 +162,10 @@ namespace Invaders.Model
                 foreach (MovingBody areaOccupierInvader in invadersCopy.Where(invader => RectsOverlap(shot.Area, invader.Area)))
                 {
                     _shotManager.RemoveShots(shot);
-                    _invaderManager.RemoveInvader(areaOccupierInvader as Invader);
+                    _invaderManager.RemoveInvader(areaOccupierInvader);
                     if (areaOccupierInvader is Invader invader) Score += invader.Score;
                 }
             }
-            // TODO: mark formation slot as unoccupied
         }
 
         private void ReturnFire()

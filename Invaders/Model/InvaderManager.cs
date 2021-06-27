@@ -64,7 +64,7 @@ namespace Invaders.Model
             foreach (Invader invader in _invaders.Keys.Where(_ => _.Type != InvaderType.Mothership))
             {
                 if (_invaders[invader] == null) continue;
-                Point target = _invaders[invader]!.Location;
+                Point target = SelectTarget(invader);
                 invader.Move(target);
             }
 
@@ -110,7 +110,8 @@ namespace Invaders.Model
         {
             if (invaderToRemove is Invader invader)
             {
-                _invaders[invader].Occupied = false;
+                if (_invaders[invader] != null) 
+                    _invaders[invader].Occupied = false;
                 _invaders.Remove(invader);
                 invader.ShipStatus = ShipStatus.Killed;
                 OnShipChanged(invader);
@@ -173,6 +174,12 @@ namespace Invaders.Model
                 (4, 0) => (InvaderType) 4,
                 _ => throw new ArgumentException($"Failed to determine invader type for wave '{wave}' and row '{row}'.")
             };
+        }
+
+        private Point SelectTarget(Invader invader)
+        {
+            Point target = _invaders[invader]!.Location;
+            return target;
         }
 
         private int GetUppermostInvaderY()
