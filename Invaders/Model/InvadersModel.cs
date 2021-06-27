@@ -15,7 +15,6 @@ namespace Invaders.Model
         private readonly InvaderManager _invaderManager;
         private readonly StarManager _starManager;
         private readonly ShotManager _shotManager;
-        private readonly Random _random = new();
 
         public int Score { get; private set; }
         public int Wave { get; private set; }
@@ -84,7 +83,7 @@ namespace Invaders.Model
             }
 
             _playerManager.TryClearPlayerDiedStatus();
-            _invaderManager.MoveInvaders();
+            _invaderManager.MoveInvaders(_playerManager.Player.Location);
             _invaderManager.TryCreateMothership();
             _shotManager.MoveShots();
             ReturnFire();
@@ -170,18 +169,20 @@ namespace Invaders.Model
 
         private void ReturnFire()
         {
-            if (!CheckInvadersCanShoot())
+            if (_invaderManager.GetBomberReadyToFire().Any())
+            {
+                Invader bomber = _invaderManager.GetBomberReadyToFire().First();
+                _shotManager.AddShot(bomber);
+                bomber.BomberStatus = BomberStatus.Returning;
+            }
+            
+            if (!_shotManager.CheckInvadersCanShoot(Wave + 1))
             {
                 return;
             }
 
             MovingBody shootingInvader = _invaderManager.DetermineShootingInvader();
             _shotManager.AddShot(shootingInvader);
-        }
-        
-        private bool CheckInvadersCanShoot()
-        {
-            return _shotManager.InvaderShotsCount < Wave + 1 && _random.Next(30) >= 30 - Wave;
         }
 
         private List<Shot> GetShotsHittingPlayer()

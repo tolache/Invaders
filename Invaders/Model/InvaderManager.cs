@@ -27,6 +27,14 @@ namespace Invaders.Model
             List<Invader> invaders = _invaders.Keys.ToList();
             return invaders.ConvertAll(_ => (MovingBody) _).AsReadOnly();
         }
+        
+        public ReadOnlyCollection<Invader> GetBomberReadyToFire()
+        {
+            IEnumerable<Invader> bombersReadyToFire = from invader in _invaders.Keys
+                where invader.BomberStatus == BomberStatus.ReadyToFire
+                select invader;
+            return bombersReadyToFire.ToList().AsReadOnly();
+        }
 
         public void KillAllInvaders()
         {
@@ -57,14 +65,16 @@ namespace Invaders.Model
             }
         }
 
-        public void MoveInvaders()
+        public void MoveInvaders(Point playerLocation)
         {
             _invaderFormation.UpdateFormationLocation();
+
+            UpdateBomberStatus(playerLocation);
             
             foreach (Invader invader in _invaders.Keys.Where(_ => _.Type != InvaderType.Mothership))
             {
                 if (_invaders[invader] == null) continue;
-                Point target = SelectTarget(invader);
+                Point target = SelectMoveTarget(invader, playerLocation);
                 invader.Move(target);
             }
 
@@ -96,6 +106,7 @@ namespace Invaders.Model
         public MovingBody DetermineShootingInvader()
         {
             var invaderColumns = from invader in _invaders.Keys
+                where invader.BomberStatus == BomberStatus.None
                 group invader by invader.Location.X
                 into invaderColumn
                 select invaderColumn;
@@ -111,7 +122,7 @@ namespace Invaders.Model
             if (invaderToRemove is Invader invader)
             {
                 if (_invaders[invader] != null) 
-                    _invaders[invader].Occupied = false;
+                    _invaders[invader]!.Occupied = false;
                 _invaders.Remove(invader);
                 invader.ShipStatus = ShipStatus.Killed;
                 OnShipChanged(invader);
@@ -120,6 +131,45 @@ namespace Invaders.Model
             {
                 throw new ArgumentOutOfRangeException(nameof(invaderToRemove),
                     $"{nameof(MovingBody)} must be an {nameof(Invader)}.");
+            }
+        }
+
+        private void UpdateBomberStatus(Point diveBombingTarget)
+        {
+            var watchItInvaders = _invaders.Keys.Where(_ => _.Type == InvaderType.WatchIt).ToList();
+            if (watchItInvaders.Count == 0) return;
+            
+            var bombers = watchItInvaders.Where(_ => _.BomberStatus != BomberStatus.None).ToList();
+            if (bombers.Any())
+            {
+                Invader bomber = bombers.First();
+                if (bomber.BomberStatus == BomberStatus.Diving &&
+                    bomber.Location == GetBombingPosition(diveBombingTarget))
+                {
+                    bomber.BomberStatus = BomberStatus.ReadyToFire;
+                }
+                else if (bomber.BomberStatus == BomberStatus.Returning &&
+                         _invaders[bomber] != null &&
+                         bomber.Location == _invaders[bomber]!.Location)
+                {
+                    bomber.BomberStatus = BomberStatus.None;
+                    FormationSlot? formationSlot = _invaders[bomber];
+                    if (formationSlot != null)
+                    {
+                        formationSlot.Occupied = true;
+                    }
+                }
+            }
+            else
+            {
+                int randomIndex = _random.Next(0, watchItInvaders.Count);
+                Invader invaderToStartBombing = watchItInvaders.ElementAt(randomIndex);
+                invaderToStartBombing.BomberStatus = BomberStatus.Diving;
+                FormationSlot? formationSlot = _invaders[invaderToStartBombing];
+                if (formationSlot != null)
+                {
+                    formationSlot.Occupied = false;
+                }
             }
         }
 
@@ -172,10 +222,25 @@ namespace Invaders.Model
             };
         }
 
-        private Point SelectTarget(Invader invader)
+        private Point SelectMoveTarget(Invader invader, Point diveBombingTarget)
         {
-            Point target = _invaders[invader]!.Location;
+            Point target = invader.BomberStatus switch
+            {
+                BomberStatus.None => _invaders[invader]!.Location,
+                BomberStatus.Returning => _invaders[invader]!.Location,
+                BomberStatus.Diving => GetBombingPosition(diveBombingTarget),
+                BomberStatus.ReadyToFire => GetBombingPosition(diveBombingTarget),
+                _ => throw new ArgumentOutOfRangeException(nameof(invader.BomberStatus), 
+                    $"Not expected BomberStatus value: {invader.BomberStatus}"),
+            };
             return target;
+        }
+        
+        private Point GetBombingPosition(Point diveBombingTarget)
+        {
+            int diveBombingPositionX = diveBombingTarget.X + (Player.PlayerSize.Width - Invader.InvaderSize.Width) / 2;
+            int diveBombingPositionY = diveBombingTarget.Y - 2 - Invader.InvaderSize.Width - Shot.ShotSize.Height * 2;
+            return new Point(diveBombingPositionX, diveBombingPositionY);
         }
 
         private bool CheckGotSpaceForMothership()

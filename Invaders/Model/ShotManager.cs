@@ -10,11 +10,13 @@ namespace Invaders.Model
     {
         public ReadOnlyCollection<Shot> PlayerShots => _playerShots.AsReadOnly();
         public ReadOnlyCollection<Shot> InvaderShots => _invaderShots.AsReadOnly();
-        public int InvaderShotsCount => _invaderShots.Count;
-        
+
+        private const int InvaderShootDelayMs = 500;
         private readonly List<Shot> _playerShots = new();
         private readonly List<Shot> _invaderShots = new();
         private readonly Size _playAreaSize;
+        private DateTime _invadersNextShotTime = DateTime.MinValue;
+
         private readonly OnShotMovedCallback _onShotMoved;
 
         public ShotManager(Size playAreaSize, OnShotMovedCallback onShotMoved)
@@ -52,6 +54,13 @@ namespace Invaders.Model
                 _onShotMoved(shot, false);
             }
         }
+        
+        public bool CheckInvadersCanShoot(int maxInvaderShotCount)
+        {
+            if (_invadersNextShotTime > DateTime.Now || _invaderShots.Count > maxInvaderShotCount) 
+                return false;
+            return true;
+        }
 
         public void AddShot(MovingBody shooter)
         {
@@ -71,6 +80,7 @@ namespace Invaders.Model
             else
             {
                 _invaderShots.Add(newShot);
+                _invadersNextShotTime = DateTime.Now + TimeSpan.FromMilliseconds(InvaderShootDelayMs);
             }
             
             _onShotMoved(newShot, false);

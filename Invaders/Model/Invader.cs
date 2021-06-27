@@ -13,6 +13,7 @@ namespace Invaders.Model
 
         public InvaderType Type { get; }
         public int Score { get; private set; }
+        public BomberStatus BomberStatus { get; set; }
 
         public Invader(InvaderType type, Point location) : base(location, GetShipSize(type))
         {
@@ -91,5 +92,13 @@ namespace Invaders.Model
                     throw new ArgumentException($"Unexpected invader type: {type}.");
             }
         }
+    }
+
+    public enum BomberStatus
+    {
+        None,
+        Diving,
+        ReadyToFire,
+        Returning,
     }
 }
