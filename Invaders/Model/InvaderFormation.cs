@@ -34,6 +34,9 @@ namespace Invaders.Model
                     _formationSlots[i, j] = new FormationSlot(this, i, j);
                 }
             }
+
+            _justMovedDown = false;
+            _nextMoveDirection = Direction.Right;
         }
 
         public void UpdateFormationLocation()
@@ -85,7 +88,7 @@ namespace Invaders.Model
             }
             return false;
         }
-        
+
         private bool CheckFormationReachedLeftBoundary()
         {
             var occupiedSlotsCloseLeftBoundary = from FormationSlot slot in _formationSlots
