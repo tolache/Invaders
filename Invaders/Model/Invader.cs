@@ -88,7 +88,7 @@ namespace Invaders.Model
                     Score = 250;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), $"Unexpected invader type: {type}.");
+                    throw new ArgumentException($"Unexpected invader type: {type}.");
             }
         }
     }
