@@ -86,14 +86,20 @@ namespace Invaders.ViewModel
 
         public void PauseGame()
         {
-            if (GameOver) return;
+            if (GameOver)
+            {
+                return;
+            }
             Paused = true;
             OnPropertyChanged(nameof(Paused));
         }
         
         public void ResumeGame()
         {
-            if (GameOver) return;
+            if (GameOver)
+            {
+                return;
+            }
             Paused = false;
             OnPropertyChanged(nameof(Paused));
         }
@@ -108,12 +114,24 @@ namespace Invaders.ViewModel
             switch (eKey)
             {
                 case Key.Enter:
-                    if (GameOver) StartGame();
-                    if (Paused) ResumeGame();
+                    if (GameOver)
+                    {
+                        StartGame();
+                    }
+                    if (Paused)
+                    {
+                        ResumeGame();
+                    }
                     break;
                 case Key.Escape:
-                    if (Paused) ResumeGame();
-                    else PauseGame();
+                    if (Paused)
+                    {
+                        ResumeGame();
+                    }
+                    else
+                    {
+                        PauseGame();
+                    }
                     break;
                 case Key.Space:
                     _model.FireShot();
@@ -132,9 +150,13 @@ namespace Invaders.ViewModel
         public void KeyUp(Key eKey)
         {
             if (eKey == Key.Left || eKey == Key.A)
+            {
                 _leftAction = null;
+            }
             if (eKey == Key.Right || eKey == Key.D)
+            {
                 _rightAction = null;
+            }
         }
 
         public void LeftGestureStarted()
@@ -263,7 +285,10 @@ namespace Invaders.ViewModel
 
         private void RemoveInvaderSprite(Invader invader)
         {
-            if (!_invaders.ContainsKey(invader)) return;
+            if (!_invaders.ContainsKey(invader))
+            {
+                return;
+            }
             AnimatedImage invaderAnimatedImage = _invaders[invader] as AnimatedImage;
             invaderAnimatedImage?.FadeOut();
             _removedInvaders.Add(_invaders[invader], DateTime.Now);

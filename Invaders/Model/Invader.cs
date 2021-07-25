@@ -20,9 +20,13 @@ namespace Invaders.Model
             Type = type;
             SetScoreValue(type);
             if (Type == InvaderType.Mothership)
+            {
                 MoveDistance = MothershipSpeed;
+            }
             else
+            {
                 MoveDistance = InvaderSpeed;
+            }
         }
 
         public void Move(Point target)
@@ -34,19 +38,35 @@ namespace Invaders.Model
             int distance = MoveDistance;
             if (Math.Abs(horizontalDistanceToTarget) > Math.Abs(verticalDistanceToTarget))
             {
-                if (horizontalDistanceToTarget < 0) direction = Direction.Right;
-                else if (horizontalDistanceToTarget > 0) direction = Direction.Left;
+                if (horizontalDistanceToTarget < 0)
+                {
+                    direction = Direction.Right;
+                }
+                else if (horizontalDistanceToTarget > 0)
+                {
+                    direction = Direction.Left;
+                }
 
-                if (Math.Abs(horizontalDistanceToTarget) < MoveDistance) 
+                if (Math.Abs(horizontalDistanceToTarget) < MoveDistance)
+                {
                     distance = horizontalDistanceToTarget;
+                }
             }
             else
             {
-                if (verticalDistanceToTarget < 0) direction = Direction.Down;
-                else if (verticalDistanceToTarget > 0) direction = Direction.Up;
+                if (verticalDistanceToTarget < 0)
+                {
+                    direction = Direction.Down;
+                }
+                else if (verticalDistanceToTarget > 0)
+                {
+                    direction = Direction.Up;
+                }
 
-                if (Math.Abs(verticalDistanceToTarget) < MoveDistance) 
+                if (Math.Abs(verticalDistanceToTarget) < MoveDistance)
+                {
                     distance = verticalDistanceToTarget;
+                }
             }
             
             if (direction != Direction.Undefined)
@@ -58,9 +78,13 @@ namespace Invaders.Model
         private static Size GetShipSize(InvaderType type)
         {
             if (type == InvaderType.Mothership)
+            {
                 return MothershipSize;
+            }
             else
+            {
                 return InvaderSize;
+            }
         }
 
         private void SetScoreValue(InvaderType type)

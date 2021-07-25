@@ -26,7 +26,10 @@ namespace Invaders.Model
 
         public void ChargeBattery()
         {
-            if (DateTime.Now - _batteryChargeChange < _batteryChargeRate) return;
+            if (DateTime.Now - _batteryChargeChange < _batteryChargeRate)
+            {
+                return;
+            }
             if (CurrentBatteryCharge < BatterySize)
             {
                 CurrentBatteryCharge++;
@@ -36,7 +39,10 @@ namespace Invaders.Model
 
         public void DrainBattery()
         {
-            if (CurrentBatteryCharge <= 0) return;
+            if (CurrentBatteryCharge <= 0)
+            {
+                return;
+            }
             CurrentBatteryCharge--;
             _batteryChargeChange = DateTime.Now;
         }

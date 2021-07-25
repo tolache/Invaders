@@ -73,7 +73,10 @@ namespace Invaders.Model
             
             foreach (Invader invader in _invaders.Keys.Where(_ => _.Type != InvaderType.Mothership))
             {
-                if (_invaders[invader] == null) continue;
+                if (_invaders[invader] == null)
+                {
+                    continue;
+                }
                 Point target = SelectMoveTarget(invader, playerLocation);
                 invader.Move(target);
             }
@@ -121,8 +124,10 @@ namespace Invaders.Model
         {
             if (invaderToRemove is Invader invader)
             {
-                if (_invaders[invader] != null) 
+                if (_invaders[invader] != null)
+                {
                     _invaders[invader]!.Occupied = false;
+                }
                 _invaders.Remove(invader);
                 invader.ShipStatus = ShipStatus.Killed;
                 OnShipChanged(invader);
@@ -137,7 +142,10 @@ namespace Invaders.Model
         private void UpdateBomberStatus(Point diveBombingTarget)
         {
             var watchItInvaders = _invaders.Keys.Where(_ => _.Type == InvaderType.WatchIt).ToList();
-            if (watchItInvaders.Count == 0) return;
+            if (watchItInvaders.Count == 0)
+            {
+                return;
+            }
             
             var bombers = watchItInvaders.Where(_ => _.BomberStatus != BomberStatus.None).ToList();
             if (bombers.Any())
@@ -183,7 +191,10 @@ namespace Invaders.Model
         {
             if (!MothershipCreationAttempted && CheckGotSpaceForMothership() && CheckHaveHalfInvadersDied())
             {
-                if (_random.Next(0, 3) == 2) CreateMothership();
+                if (_random.Next(0, 3) == 2)
+                {
+                    CreateMothership();
+                }
                 MothershipCreationAttempted = true;
             }
         }

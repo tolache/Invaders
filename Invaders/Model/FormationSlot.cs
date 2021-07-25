@@ -58,11 +58,18 @@ namespace Invaders.Model
 
         public bool Equals(FormationSlot? other)
         {
-            if (other == null) return false;
-            if (Column == other.Column && Row == other.Row)
-                return true;
-            else
+            if (other == null)
+            {
                 return false;
+            }
+            if (Column == other.Column && Row == other.Row)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

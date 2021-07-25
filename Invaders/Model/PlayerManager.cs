@@ -59,7 +59,10 @@ namespace Invaders.Model
 
         public void MovePlayer(Direction direction)
         {
-            if (CheckIsPlayerFrozen() || CheckPlayerReachedBoundary(direction)) return;
+            if (CheckIsPlayerFrozen() || CheckPlayerReachedBoundary(direction))
+            {
+                return;
+            }
 
             _player.Move(direction, _player.MoveDistance);
             _player.ShipStatus = PlayerStatus;
@@ -88,9 +91,13 @@ namespace Invaders.Model
             bool isPlayerNextToRightBoundary = Player.Location.X > _playAreaSize.Width - Player.Size.Width - _player.MoveDistance;
             if (direction == Direction.Left && isPlayerNextToLeftBoundary ||
                 direction == Direction.Right && isPlayerNextToRightBoundary)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
     }
 }

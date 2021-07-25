@@ -42,7 +42,10 @@ namespace Invaders.Model
 
         public void UpdateFormationLocation()
         {
-            if (_nextFormationMoveTime > DateTime.Now) return;
+            if (_nextFormationMoveTime > DateTime.Now)
+            {
+                return;
+            }
 
             _justMovedDown = false;
             
@@ -86,9 +89,13 @@ namespace Invaders.Model
                 select slot;
             
             if (occupiedSlotsCloseToBottom.Any())
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
         
         public int GetUppermostInvaderY()

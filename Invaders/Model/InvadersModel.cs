@@ -107,7 +107,10 @@ namespace Invaders.Model
 
         public void FireShot()
         {
-            if (GameOver || GamePaused || !_playerManager.CheckCanPlayerShoot()) return;
+            if (GameOver || GamePaused || !_playerManager.CheckCanPlayerShoot())
+            {
+                return;
+            }
             _playerManager.DrainPlayerBattery();
             _shotManager.AddShot(_playerManager.Player);
         }
@@ -144,7 +147,10 @@ namespace Invaders.Model
 
         private void HitPlayer()
         {
-            if (_playerManager.PlayerStatus != ShipStatus.Alive) return;
+            if (_playerManager.PlayerStatus != ShipStatus.Alive)
+            {
+                return;
+            }
             _playerManager.DamagePlayer();
             Lives--;
             if (Lives < 0)
@@ -163,7 +169,10 @@ namespace Invaders.Model
                 {
                     _shotManager.RemoveShots(shot);
                     _invaderManager.RemoveInvader(areaOccupierInvader);
-                    if (areaOccupierInvader is Invader invader) Score += invader.Score;
+                    if (areaOccupierInvader is Invader invader)
+                    {
+                        Score += invader.Score;
+                    }
                 }
             }
         }
